@@ -32,3 +32,23 @@ export function whyParts(i: WhyInput): { key: StringKey; n: number }[] {
 export function ageHours(iso: string, now = Date.now()) {
   return Math.max(0, (now - new Date(iso).getTime()) / 3_600_000);
 }
+
+export interface TimelineEvent { status: IssueStatus; at: string | null; note: string | null }
+
+/**
+ * Progress timeline: what happened, in order (the report itself always first), then the steps
+ * still to come after the current status. A reopen shows up as its own event, so "Fixed" is never
+ * shown as the current state of an issue that was reopened.
+ */
+export function buildTimeline(
+  status: IssueStatus, createdAt: string, history: { status: IssueStatus; at: string; note: string | null }[],
+): TimelineEvent[] {
+  const events: TimelineEvent[] = [...history]
+    .sort((a, b) => new Date(a.at).getTime() - new Date(b.at).getTime())
+    .map((h) => ({ status: h.status, at: h.at, note: h.note }));
+  if (events[0]?.status !== "submitted") events.unshift({ status: "submitted", at: createdAt, note: null });
+  if (status === "rejected" || status === "duplicate") return events;
+  const from = STEPS.indexOf(status);
+  for (const s of STEPS.slice(from + 1)) events.push({ status: s, at: null, note: null });
+  return events;
+}

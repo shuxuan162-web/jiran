@@ -8,7 +8,7 @@ import { useI18n, type StringKey } from "../../../i18n";
 import { errorKey } from "../../../lib/errors";
 import { fileProblem } from "../../../lib/validation";
 import { useTitle } from "../../../lib/useTitle";
-import { STEPS, priorityLevel, statusKey, type IssueStatus } from "../../../lib/scoring/labels";
+import { buildTimeline, priorityLevel, statusKey, type IssueStatus } from "../../../lib/scoring/labels";
 import LeafletMap from "../../../lib/map/LeafletMap";
 import { Avatar, Banner, Spinner, TopBar } from "../../../components/ui/parts";
 import { CategoryName, PriorityLabel, StatusChip, WhyLine, issuePinHtml } from "../../../components/issues";
@@ -90,11 +90,10 @@ export default function IssueDetail() {
     } catch (e) { setErr(errorKey(e)); }
   }
 
-  // Timeline: steps reached (with times) then the remaining ones greyed out
-  const reached = new Map<IssueStatus, { at: string; note: string | null; team: string | null }>();
-  for (const h of d!.history) reached.set(h.status, { at: h.at, note: h.note, team: h.team });
-  const closedOther = issue.status === "rejected" || issue.status === "duplicate";
-  const steps: IssueStatus[] = closedOther ? [...d!.history.map((h) => h.status)] : STEPS;
+  // Timeline: what happened in order, then the steps still to come (greyed out)
+  const timeline = buildTimeline(issue.status, issue.created_at, d!.history);
+  const where = [...new Set([issue.address_text, issue.area_name].filter((x): x is string => !!x))]
+    .filter((x, _, all) => !all.some((y) => y !== x && y.includes(x)));
   const fmt = (iso: string) => new Date(iso).toLocaleString(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 
   return (
@@ -164,29 +163,26 @@ export default function IssueDetail() {
       <section className="card">
         {d!.team && <p style={{ fontWeight: 700 }}>{t("issue.team", { team: d!.team })}</p>}
         <ol className="timeline">
-          {steps.map((s) => {
-            const r = reached.get(s);
-            return (
-              <li key={s} className={r ? "" : "todo"}>
-                <span className="tl-dot" aria-hidden="true" />
-                <strong>{t(statusKey(s))}</strong>
-                {r ? (
-                  <span className="small muted" style={{ display: "block" }}>
-                    {fmt(r.at)}{r.note ? ` · ${r.note}` : ""}
-                  </span>
-                ) : (
-                  <span className="small" style={{ display: "block" }}>{t(`statusSub.${s}` as StringKey)}</span>
-                )}
-              </li>
-            );
-          })}
+          {timeline.map((e, i) => (
+            <li key={i} className={e.at ? "" : "todo"}>
+              <span className="tl-dot" aria-hidden="true" />
+              <strong>{t(statusKey(e.status))}</strong>
+              {e.at ? (
+                <span className="small muted" style={{ display: "block" }}>
+                  {fmt(e.at)}{e.note ? ` · ${e.note}` : ""}
+                </span>
+              ) : (
+                <span className="small" style={{ display: "block" }}>{t(`statusSub.${e.status}` as StringKey)}</span>
+              )}
+            </li>
+          ))}
         </ol>
       </section>
 
       <h2 className="section">{t("issue.where")}</h2>
       <LeafletMap label={t("issue.where")} height={200} interactive={false} center={[issue.lat, issue.lng]} zoom={16}
         pins={[{ id: issue.id, lat: issue.lat, lng: issue.lng, label: issue.ref_no, html: issuePinHtml(open ? priorityLevel(issue.p) : "low") }]} />
-      <p className="small muted" style={{ marginTop: 6 }}>{[issue.address_text, issue.area_name].filter(Boolean).join(" · ")}</p>
+      <p className="small muted" style={{ marginTop: 6 }}>{where.join(" · ")}</p>
 
       <h2 className="section">{t("issue.comments")}</h2>
       <section className="card">

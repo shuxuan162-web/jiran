@@ -4,6 +4,7 @@ import { env, configMissing } from "../config/env";
 import { useI18n, type StringKey } from "../i18n";
 import { useTitle } from "../lib/useTitle";
 import { IconAlert, IconCheck, IconX } from "../components/ui/Icons";
+import { MAP_PROVIDER_LABEL, TILE_URL } from "../lib/map/elmina";
 
 type State = "checking" | "ok" | "warn" | "fail";
 interface Check { key: StringKey; state: State; detail: string; }
@@ -24,12 +25,19 @@ export default function Health({ embedded = false }: { embedded?: boolean }) {
       { key: "health.storage", state: "checking", detail: "" },
       { key: "health.realtime", state: "checking", detail: "" },
       { key: "health.functions", state: "checking", detail: "" },
-      { key: "health.map", state: env.hereApiKey ? "ok" : "warn", detail: env.hereApiKey ? `HERE key set (${env.mapProvider})` : t("health.mapLater") },
+      { key: "health.map", state: "checking", detail: "" },
       { key: "health.demo", state: env.demoMode ? "ok" : "warn", detail: env.demoMode ? t("health.demoOn") : t("health.demoOff") },
     ];
     setChecks(base);
     const set = (key: StringKey, state: State, detail: string) =>
       setChecks((cs) => cs.map((c) => (c.key === key ? { ...c, state, detail } : c)));
+
+    // Map: Leaflet is bundled; check one tile from the key-less tile server loads.
+    const tile = new Image();
+    const tileTimer = setTimeout(() => set("health.map", "fail", t("health.mapSlow")), 8000);
+    tile.onload = () => { clearTimeout(tileTimer); set("health.map", "ok", MAP_PROVIDER_LABEL); };
+    tile.onerror = () => { clearTimeout(tileTimer); set("health.map", "fail", t("health.mapSlow")); };
+    tile.src = TILE_URL.replace("{s}", "a").replace("{z}", "14").replace("{x}", "12811").replace("{y}", "8047").replace("{r}", "");
 
     if (configMissing) {
       ["health.db", "health.auth", "health.storage", "health.realtime", "health.functions"].forEach((k) =>

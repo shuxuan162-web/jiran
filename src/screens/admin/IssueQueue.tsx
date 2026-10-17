@@ -68,7 +68,7 @@ export default function IssueQueue() {
         if (!mergeInto) throw new Error("merge_target_required");
       }
       const n = await updateIssueStatus([...sel], newStatus, note, team, mergeInto);
-      setMsg(t("admin.q.done", { n }));
+      setMsg(n === 1 ? t("admin.q.done1") : t("admin.q.done", { n }));
       setSel(new Set()); setNote(""); setTeam(""); setMergeRef("");
       await load();
     } catch (e) { setErr(errorKey(e)); }
@@ -136,7 +136,7 @@ export default function IssueQueue() {
               <span className="label">{t("admin.q.note")}</span>
               <input className="input" value={note} onChange={(e) => setNote(e.target.value)} maxLength={300} />
             </label>
-            <button className="btn btn-primary btn-small" disabled={busy} onClick={apply}>{t("admin.q.apply", { n: sel.size })}</button>
+            <button className="btn btn-primary btn-small" disabled={busy} onClick={apply}>{sel.size === 1 ? t("admin.q.apply1") : t("admin.q.apply", { n: sel.size })}</button>
           </div>
         </section>
       )}

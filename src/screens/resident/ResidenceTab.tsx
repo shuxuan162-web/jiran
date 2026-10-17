@@ -3,6 +3,8 @@ import { useAuth } from "../../features/auth/AuthProvider";
 import { useI18n, type StringKey } from "../../i18n";
 import { useTitle } from "../../lib/useTitle";
 import { NotificationBell } from "../../components/issues";
+import SosButton from "../../components/SosButton";
+import HappeningNow from "../../components/HappeningNow";
 import {
   IconAlert, IconBell, IconCalendar, IconChat, IconClipboard, IconHelp, IconMegaphone, IconQR, IconReceipt, IconSOS, IconWrench,
 } from "../../components/ui/Icons";
@@ -32,15 +34,16 @@ export default function ResidenceTab() {
         <NotificationBell />
       </header>
 
-      <Link to="/app/soon/emergency" className="sos-big"><IconSOS /> {t("res.sos")}</Link>
+      <SosButton variant="big" />
+      <p className="small muted" style={{ margin: "6px 0 0" }}>{t("sos.bigHint")}</p>
 
       <h2 className="section">{t("res.happening")}</h2>
-      <div className="card muted">{t("res.happeningEmpty")}</div>
+      <HappeningNow />
 
       <h2 className="section">{t("nav.residence")}</h2>
       <div className="tiles">
         {tiles.map(({ key, slug, Icon, tint, ink }) => (
-          <Link key={slug} to={slug === "complaint" ? "/app/issues" : `/app/soon/${slug}`} className="tile" style={{ background: tint, color: "var(--color-ink)" }}>
+          <Link key={slug} to={slug === "complaint" ? "/app/issues" : slug === "emergency" ? "/app/emergency" : `/app/soon/${slug}`} className="tile" style={{ background: tint, color: "var(--color-ink)" }}>
             <Icon style={{ color: ink }} />
             <span>{t(key)}</span>
           </Link>

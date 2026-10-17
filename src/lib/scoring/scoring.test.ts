@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { priorityFrom } from "./priority";
 import { severityFor } from "./severity";
-import { priorityLevel, whyParts } from "./labels";
+import { buildTimeline, priorityLevel, whyParts } from "./labels";
 
 // Fixtures shared with the SQL function public.priority_from (same inputs, same expected outputs).
 // Run in Supabase:  select public.priority_from(85, 9, 12, 2, 4, 144);  -- 69.2
@@ -59,5 +59,31 @@ describe("labels", () => {
     const parts = whyParts({ affected: 14, votes: 9, ageHours: 6 * 24 + 3, severity: 85 });
     expect(parts.map((p) => p.key)).toEqual(["why.safety", "why.homes", "why.votes", "why.days"]);
     expect(parts[3].n).toBe(6);
+  });
+});
+
+describe("timeline", () => {
+  const c = "2026-10-16T09:00:00Z";
+  it("adds the report as the first step when history doesn't have it", () => {
+    const tl = buildTimeline("assigned", c, [
+      { status: "assigned", at: "2026-10-17T09:00:00Z", note: null },
+      { status: "acknowledged", at: "2026-10-16T13:00:00Z", note: null },
+    ]);
+    expect(tl.map((e) => [e.status, e.at !== null])).toEqual([
+      ["submitted", true], ["acknowledged", true], ["assigned", true], ["in_progress", false], ["resolved", false],
+    ]);
+  });
+  it("shows a reopen as its own event and the steps still to come", () => {
+    const tl = buildTimeline("acknowledged", c, [
+      { status: "submitted", at: c, note: null },
+      { status: "resolved", at: "2026-10-17T00:00:00Z", note: null },
+      { status: "acknowledged", at: "2026-10-17T01:00:00Z", note: "Reopened" },
+    ]);
+    expect(tl.map((e) => e.status)).toEqual(["submitted", "resolved", "acknowledged", "assigned", "in_progress", "resolved"]);
+    expect(tl.filter((e) => e.at === null).length).toBe(3);
+  });
+  it("stops at a closed or merged issue", () => {
+    expect(buildTimeline("duplicate", c, [{ status: "duplicate", at: "2026-10-17T00:00:00Z", note: null }]).map((e) => e.status))
+      .toEqual(["submitted", "duplicate"]);
   });
 });

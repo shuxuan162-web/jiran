@@ -26,6 +26,12 @@ import ReportIssue from "../screens/resident/issues/ReportIssue";
 import IssueDetail from "../screens/resident/issues/IssueDetail";
 import Notifications from "../screens/resident/Notifications";
 import IssueQueue from "../screens/admin/IssueQueue";
+import UrgentPanel from "../screens/admin/UrgentPanel";
+import AdminMap from "../screens/admin/AdminMap";
+import EmergencyScreen from "../screens/resident/sos/EmergencyScreen";
+import EmergencyReport from "../screens/resident/sos/EmergencyReport";
+import SosLive from "../screens/resident/sos/SosLive";
+import { SosProvider } from "../features/sos/SosProvider";
 
 /** Sends each person to the right place for who they are and where they are in onboarding. */
 function Home() {
@@ -117,7 +123,7 @@ export default function App() {
             <Route path="/emails" element={<ResidentFrame><SignedIn><EmailLog /></SignedIn></ResidentFrame>} />
             <Route path="/health" element={<ResidentFrame><Health /></ResidentFrame>} />
 
-            <Route path="/app" element={<ResidentFrame><ResidentGate><Shell /></ResidentGate></ResidentFrame>}>
+            <Route path="/app" element={<ResidentFrame><ResidentGate><SosProvider><Shell /></SosProvider></ResidentGate></ResidentFrame>}>
               <Route index element={<Navigate to="map" replace />} />
               <Route path="map" element={<MapTab />} />
               <Route path="residence" element={<ResidenceTab />} />
@@ -132,6 +138,9 @@ export default function App() {
               <Route path="issues/:id" element={<IssueDetail />} />
               <Route path="report" element={<ReportIssue />} />
               <Route path="notifications" element={<Notifications />} />
+              <Route path="emergency" element={<EmergencyScreen />} />
+              <Route path="emergency/report" element={<EmergencyReport />} />
+              <Route path="sos/:id" element={<SosLive />} />
             </Route>
 
             <Route path="/admin/login" element={<ResidentFrame><SignIn mode="staff" /></ResidentFrame>} />
@@ -139,6 +148,8 @@ export default function App() {
               <Route index element={<Navigate to="urgent" replace />} />
               <Route path="verifications" element={<StaffGate managementOnly><Verifications /></StaffGate>} />
               <Route path="health" element={<Health embedded />} />
+              <Route path="urgent" element={<UrgentPanel />} />
+              <Route path="map" element={<AdminMap />} />
               <Route path="issues" element={<StaffGate managementOnly><IssueQueue /></StaffGate>} />
               <Route path="issues/:id" element={<div className="app-frame" style={{ margin: 0 }}><IssueDetail /></div>} />
               <Route path=":section" element={<AdminSoon />} />
