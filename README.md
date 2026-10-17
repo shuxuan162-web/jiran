@@ -4,8 +4,8 @@ The residents' app for City of Elmina by Sime Darby Property, built for the **SD
 
 **The one problem we solve:** residents waste time chasing updates because they don't know whom to contact or how to track an issue. Jiran is one channel for reporting, prioritising and tracking township problems, with emergencies always first, on a live map of the township.
 
-- Live app: https://jiran-elmina-sims-city.vercel.app (demo mode on)
-- Health check: https://jiran-elmina-sims-city.vercel.app/health
+- Live app: https://jiran-elmina.vercel.app (demo mode on)
+- Health check: https://jiran-elmina.vercel.app/health
 - Setup and deployment: [DEPLOY.md](DEPLOY.md)
 
 ## Build status
@@ -14,8 +14,8 @@ The residents' app for City of Elmina by Sime Darby Property, built for the **SD
 | --- | --- | --- |
 | 1 | Schema, RLS, 4 roles, owner sign-up + verification, sub-owner invites, admin verification queue, /health, deploy | **Live** |
 | 2 | Issues: report, duplicates, upvote, priority, tracking, comments, feedback, admin queue | **Live** (migration 0003 pending) |
-| 3 | Live map (Leaflet + OpenStreetMap, Organic Maps links), SOS and emergencies, urgent queue, ordering view | Built, deploying |
-| 4 | Announcements, maintenance, notifications, posts, events, newsletter, analytics-lite | |
+| 3 | Live map (Google Maps with OpenStreetMap fallback, Organic Maps links), SOS and emergencies, urgent queue, ordering view | **Live** |
+| 4 | Announcements and maintenance notices (area targeting, scheduling), notification centre, township feed with moderation, events with RSVP and check-in, weekly newsletter, analytics-lite | Built (migration 0005 pending) |
 | 5 | Gamification, avatars | |
 | 6 | Services, mall, properties (lite) | |
 

@@ -2,12 +2,12 @@
 
 Jiran is a static React app on Vercel plus a Supabase project (database, auth, storage, realtime, two edge functions). There is no server of our own to keep running.
 
-Current live deployment (phases 1 and 2):
+Current live deployment (phases 1 to 3; phase 4 needs migration 0005):
 
 | Piece | Where |
 | --- | --- |
-| App | https://jiran-elmina-sims-city.vercel.app |
-| Health check | https://jiran-elmina-sims-city.vercel.app/health |
+| App | https://jiran-elmina.vercel.app |
+| Health check | https://jiran-elmina.vercel.app/health |
 | Supabase project | `lkvaewjjxjkykxlrkvhr` (region ap-southeast-1, Singapore) |
 | Vercel project | `jiran-elmina` |
 
@@ -16,7 +16,7 @@ Current live deployment (phases 1 and 2):
 ### 1. Supabase project
 1. Go to supabase.com, sign in, click **New project**. Region: **Southeast Asia (Singapore)**. Save the database password somewhere safe.
 2. Open **SQL Editor**, paste `supabase/migrations/0001_core.sql`, click **Run**. Repeat for every later migration file, in number order.
-3. Paste `supabase/seed.sql` and click **Run**, then `supabase/seed_issues.sql` (20 demo issues with votes, history and comments). Both are safe to run again; they never duplicate rows.
+3. Paste `supabase/seed.sql` and click **Run**, then `supabase/seed_issues.sql` (20 demo issues with votes, history and comments), then `supabase/seed_phase4.sql` (demo notices, events, posts and last week's newsletter). All are safe to run again; they never duplicate rows. Run `seed_phase4.sql` again on demo day: its times are relative to now, so the "open now" event is ready for check-in (demo code `135790`).
    Check: `select public.issue_severity('road','Pothole on the rapid lane',0);` should return **55**. If it returns 75, migration `0003_severity_words.sql` hasn't been run yet.
 4. **Authentication > Sign In / Providers > Email**: keep Email enabled. Turn **off** "Allow new users to sign up" (owners register through the `register-owner` function, sub-owners only through invites). Turn **on** "Leaked password protection" if your plan allows it.
 5. **Authentication > URL Configuration**: set Site URL to your Vercel URL and add `http://localhost:5173` to Redirect URLs.
@@ -79,6 +79,16 @@ These are public demo credentials. Change or delete them before any real use.
 3. As management, `/admin/issues`: tick the new issue, set **Assigned** with a team and a note. Owner B's bell shows a new notification; the timeline shows the step.
 4. Set it to **Fixed**. As Owner B, answer "No, not fixed": the issue reopens with higher severity and management is notified.
 
+### 8. Smoke test (phase 4: information and community)
+1. As management, `/admin/publish`: publish a **Safety** notice to **Elmina Valley**. The result says how many residents were notified.
+2. As Owner B (Elmina Valley): the bell shows it, it is at the top of "Happening now" just below any emergency, and it opens from Notifications > Announcements. Owner A (Elmina Green) does not get it.
+3. Owner B: Township feed > **Share a post** with a pin and the bubble on. The bubble appears on the map. Post again with a phone number in it: it says it is waiting for review.
+4. Management, `/admin/moderation`: the held post is there. Click **Show it**.
+5. Owner A: Events > **Organise an event**. It says "Waiting for approval". Management, `/admin/events`: approve it. Owner A gets a notification and sees the check-in code.
+6. Owner B: open "Drop-in coffee morning (demo, open now)", tap **I'm going**, then **Use a code instead** and enter `135790`.
+7. Management, `/admin/newsletter`: **Build this week's draft**, edit the intro, **Send to residents**. Owner B: Residence > newsletter card, scroll to the end, it marks itself read.
+8. Management, `/admin/analytics`: numbers load; enter the survey's before-Jiran numbers under **Edit** when you have them (never estimate).
+
 ## Free-tier warnings
 - Supabase free projects **pause after about a week of inactivity**. Open the dashboard and click Restore the day before the demo, then run `/health`.
 - Redeploy after every phase so the live URL never falls behind.
@@ -96,4 +106,4 @@ These are public demo credentials. Change or delete them before any real use.
 | Live updates "Problem" on /health | Realtime disabled for the project, or a network blocking websockets; the app falls back to polling. |
 | Map tiles not loading | /health shows Map: Problem. The tile server may be slow or blocked on the venue Wi-Fi; issues and SOS still work, and the list below the map shows everything. |
 | SOS doesn't open the dialer on a laptop | Desktops can't place calls; `tel:` only works on phones. In demo mode a modal is shown instead. |
-| Scheduled notices not publishing | Phase 4: check `pg_cron` jobs under Database > Cron. Read-time filters still hide expired items. |
+| Scheduled notices not publishing | No server job is needed: a scheduled notice goes out the first time anyone opens Announcements after its publish time. Expired notices disappear at read time. |
