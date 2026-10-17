@@ -5,6 +5,7 @@ import { useI18n, type StringKey } from "../i18n";
 import { useTitle } from "../lib/useTitle";
 import { IconAlert, IconCheck, IconX } from "../components/ui/Icons";
 import { MAP_PROVIDER_LABEL, TILE_URL } from "../lib/map/elmina";
+import { loadGoogleMaps } from "../lib/map/googleLoader";
 
 type State = "checking" | "ok" | "warn" | "fail";
 interface Check { key: StringKey; state: State; detail: string; }
@@ -32,12 +33,18 @@ export default function Health({ embedded = false }: { embedded?: boolean }) {
     const set = (key: StringKey, state: State, detail: string) =>
       setChecks((cs) => cs.map((c) => (c.key === key ? { ...c, state, detail } : c)));
 
-    // Map: Leaflet is bundled; check one tile from the key-less tile server loads.
-    const tile = new Image();
-    const tileTimer = setTimeout(() => set("health.map", "fail", t("health.mapSlow")), 8000);
-    tile.onload = () => { clearTimeout(tileTimer); set("health.map", "ok", MAP_PROVIDER_LABEL); };
-    tile.onerror = () => { clearTimeout(tileTimer); set("health.map", "fail", t("health.mapSlow")); };
-    tile.src = TILE_URL.replace("{s}", "a").replace("{z}", "14").replace("{x}", "12811").replace("{y}", "8047").replace("{r}", "");
+    // Map: Google Maps when its key works for this site, otherwise the key-less OpenStreetMap tiles.
+    const checkTiles = (fallbackNote: string) => {
+      const tile = new Image();
+      const tileTimer = setTimeout(() => set("health.map", "fail", t("health.mapSlow")), 8000);
+      tile.onload = () => { clearTimeout(tileTimer); set("health.map", fallbackNote ? "warn" : "ok", `${MAP_PROVIDER_LABEL}${fallbackNote}`); };
+      tile.onerror = () => { clearTimeout(tileTimer); set("health.map", "fail", t("health.mapSlow")); };
+      tile.src = TILE_URL.replace("{s}", "a").replace("{z}", "14").replace("{x}", "12811").replace("{y}", "8047").replace("{r}", "");
+    };
+    if (env.googleMapsKey) {
+      loadGoogleMaps().then(() => set("health.map", "ok", t("health.mapGoogle")))
+        .catch((e: Error) => checkTiles(` · ${t("health.mapGoogleFailed", { why: e.message })}`));
+    } else checkTiles("");
 
     if (configMissing) {
       ["health.db", "health.auth", "health.storage", "health.realtime", "health.functions"].forEach((k) =>

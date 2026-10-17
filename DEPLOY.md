@@ -33,9 +33,11 @@ supabase functions deploy accept-invite --no-verify-jwt
 ```
 Both functions run before anyone is signed in, so JWT verification is off; they do their own checks (rate limit, invite token) and use the service-role key that Supabase injects. The service-role key never goes into the app or any `VITE_` variable.
 
-### 3. Maps (no key needed)
-The in-app map is Leaflet with CARTO/OpenStreetMap tiles, which need no API key. Live location uses Leaflet's `locate()` and stays on the phone unless the resident checks in (rounded to about 100 m, 30 minutes).
-"Open in Organic Maps" buttons hand a place or a route to the free Organic Maps app (organicmaps.app). No key or account is needed, and nothing else is shared.
+### 3. Maps
+- **Google Maps** is the main map. Set `VITE_GOOGLE_MAPS_KEY` in Vercel (Production and Preview). It's a browser key, restricted in Google Cloud to HTTP referrers `*.vercel.app`, with billing and the **Maps JavaScript API** enabled.
+- **Fallback:** if Google refuses the key, is blocked or is slow, every map switches by itself to OpenStreetMap (Leaflet, no key needed) with the same pins and sections. `/health` shows which map is in use.
+- **Live location** uses the browser's location and stays on the phone unless the resident checks in (rounded to about 100 m, for 30 minutes).
+- **"Open in Organic Maps"** hands a place or a route to the free Organic Maps app.
 
 ### 4. Vercel
 1. Push the repo to GitHub, then on vercel.com click **Add New > Project** and import it. Framework: **Vite**. Build command: `npm run ci` (runs tests, type check, then build). Output: `dist`.
@@ -43,6 +45,7 @@ The in-app map is Leaflet with CARTO/OpenStreetMap tiles, which need no API key.
    - `VITE_SUPABASE_URL` = Project URL (Supabase > Project Settings > API)
    - `VITE_SUPABASE_ANON_KEY` = the publishable/anon key
    - `VITE_DEMO_MODE` = `true`
+   - `VITE_GOOGLE_MAPS_KEY` = the Google Maps browser key
 3. **Settings > Deployment Protection**: turn **off** Vercel Authentication, or judges will hit a Vercel login page.
 4. Deploy. `vercel.json` already rewrites deep links to `index.html`, so refreshing `/app/profile` works.
 

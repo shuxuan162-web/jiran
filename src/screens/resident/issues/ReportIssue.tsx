@@ -11,7 +11,7 @@ import { readPref, writePref } from "../../../lib/prefs";
 import { fileProblem } from "../../../lib/validation";
 import { useTitle } from "../../../lib/useTitle";
 import { insideElmina } from "../../../lib/map/elmina";
-import LeafletMap from "../../../lib/map/LeafletMap";
+import MapView from "../../../lib/map/MapView";
 import { Banner, ProgressSteps, Spinner, TopBar } from "../../../components/ui/parts";
 import { CategoryName, StatusChip } from "../../../components/issues";
 import { IconCheck, IconPin, IconUpload, IconX } from "../../../components/ui/Icons";
@@ -170,7 +170,7 @@ export default function ReportIssue() {
         {step === 1 && (
           <>
             <p className="muted" style={{ fontSize: "1rem" }}>{t("report.mapHint")}</p>
-            <LeafletMap label={t("report.s1")} height={300} pick={pick} onPick={(lat, lng) => setD((x) => ({ ...x, lat, lng }))} />
+            <MapView label={t("report.s1")} height={300} pick={pick} onPick={(lat, lng) => setD((x) => ({ ...x, lat, lng }))} />
             <button type="button" className="btn btn-secondary" style={{ marginTop: 12 }} onClick={locate} disabled={locating}>
               <IconPin width={20} /> {locating ? t("report.locating") : t("report.useLocation")}
             </button>

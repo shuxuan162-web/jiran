@@ -6,7 +6,8 @@ import { supabase } from "../../lib/supabase";
 import { useI18n, type StringKey } from "../../i18n";
 import { useTitle } from "../../lib/useTitle";
 import { priorityLevel } from "../../lib/scoring/labels";
-import LeafletMap, { type AreaShape, type MapPin } from "../../lib/map/LeafletMap";
+import MapView from "../../lib/map/MapView";
+import { type AreaShape, type MapPin } from "../../lib/map/LeafletMap";
 import { issuePinHtml } from "../../components/issues";
 import { Banner } from "../../components/ui/parts";
 
@@ -47,7 +48,7 @@ export default function AdminMap() {
       <h1>{t("admin.nav.map")}</h1>
       <p className="muted" style={{ marginTop: -8 }}>{t("admin.map.lead", { sos: sos.length, issues: issues.length })}</p>
       {failed && <div style={{ marginBottom: 12 }}><Banner kind="error">{t("err.network")}</Banner></div>}
-      <LeafletMap label={t("admin.nav.map")} height="72vh" pins={pins} areas={areas} zoom={14} />
+      <MapView label={t("admin.nav.map")} height="72vh" pins={pins} areas={areas} zoom={14} />
     </>
   );
 }

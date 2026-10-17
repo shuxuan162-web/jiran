@@ -5,7 +5,8 @@ import { useI18n, type StringKey } from "../../../i18n";
 import { fileProblem } from "../../../lib/validation";
 import { useTitle } from "../../../lib/useTitle";
 import { insideElmina } from "../../../lib/map/elmina";
-import LeafletMap, { type AreaShape } from "../../../lib/map/LeafletMap";
+import MapView from "../../../lib/map/MapView";
+import { type AreaShape } from "../../../lib/map/LeafletMap";
 import { Banner, TopBar } from "../../../components/ui/parts";
 import { IconPin, IconUpload } from "../../../components/ui/Icons";
 
@@ -67,7 +68,7 @@ export default function EmergencyReport() {
         </fieldset>
 
         <span className="label" style={{ display: "block", fontWeight: 800, marginBottom: 6 }}>{t("sos.where")}</span>
-        <LeafletMap label={t("sos.where")} height={260} areas={areas} pick={pick} onPick={(lat, lng) => setPick({ lat, lng })} />
+        <MapView label={t("sos.where")} height={260} areas={areas} pick={pick} onPick={(lat, lng) => setPick({ lat, lng })} />
         <button type="button" className="btn btn-secondary" style={{ marginTop: 12 }} onClick={locate} disabled={locating}>
           <IconPin width={20} /> {locating ? t("report.locating") : t("report.useLocation")}
         </button>

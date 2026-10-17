@@ -7,6 +7,9 @@ export const env = {
   supabaseAnonKey: (v.VITE_SUPABASE_ANON_KEY as string) || "",
   // Safe default: demo mode is ON unless explicitly set to "false". In demo mode SOS never dials 999.
   demoMode: String(v.VITE_DEMO_MODE ?? "true").toLowerCase() !== "false",
+  // Google Maps JavaScript API browser key. Public by design; it only works from the HTTP referrers
+  // allowed in Google Cloud (*.vercel.app). Empty = the app uses the OpenStreetMap map instead.
+  googleMapsKey: (v.VITE_GOOGLE_MAPS_KEY as string) || "",
 };
 
 export const configMissing = !env.supabaseUrl || !env.supabaseAnonKey;

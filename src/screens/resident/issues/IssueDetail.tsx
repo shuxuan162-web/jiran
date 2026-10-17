@@ -9,7 +9,7 @@ import { errorKey } from "../../../lib/errors";
 import { fileProblem } from "../../../lib/validation";
 import { useTitle } from "../../../lib/useTitle";
 import { buildTimeline, priorityLevel, statusKey, type IssueStatus } from "../../../lib/scoring/labels";
-import LeafletMap from "../../../lib/map/LeafletMap";
+import MapView from "../../../lib/map/MapView";
 import { Avatar, Banner, Spinner, TopBar } from "../../../components/ui/parts";
 import { CategoryName, PriorityLabel, StatusChip, WhyLine, issuePinHtml } from "../../../components/issues";
 import { IconUpload } from "../../../components/ui/Icons";
@@ -181,7 +181,7 @@ export default function IssueDetail() {
       </section>
 
       <h2 className="section">{t("issue.where")}</h2>
-      <LeafletMap label={t("issue.where")} height={200} interactive={false} center={[issue.lat, issue.lng]} zoom={16}
+      <MapView label={t("issue.where")} height={200} interactive={false} center={[issue.lat, issue.lng]} zoom={16}
         pins={[{ id: issue.id, lat: issue.lat, lng: issue.lng, label: issue.ref_no, html: issuePinHtml(open ? priorityLevel(issue.p) : "low") }]} />
       <p className="small muted" style={{ marginTop: 6 }}>{where.join(" · ")}</p>
       <OrganicMapsLink lat={issue.lat} lng={issue.lng} name={issue.ref_no} />

@@ -5,7 +5,7 @@ import { supabase } from "../../lib/supabase";
 import { useI18n, type StringKey } from "../../i18n";
 import { errorKey } from "../../lib/errors";
 import { useTitle } from "../../lib/useTitle";
-import LeafletMap from "../../lib/map/LeafletMap";
+import MapView from "../../lib/map/MapView";
 import { Banner, Spinner } from "../../components/ui/parts";
 import OrganicMapsLink from "../../components/OrganicMapsLink";
 
@@ -110,7 +110,7 @@ export default function UrgentPanel() {
                   {r.photo_path && <a href={photoUrl(r.photo_path)} target="_blank" rel="noreferrer"><img src={photoUrl(r.photo_path)} alt={t("admin.u.photo")} style={{ width: 140, borderRadius: 12, marginTop: 8 }} /></a>}
                   {r.handled_by_nickname && <p className="small muted" style={{ margin: "6px 0 0" }}>{t("admin.u.handledBy", { name: r.handled_by_nickname })}{r.staff_note ? ` · ${r.staff_note}` : ""}</p>}
                 </div>
-                <LeafletMap label={`${r.ref_no} location`} height={180} interactive={false} center={[r.lat, r.lng]} zoom={16}
+                <MapView label={`${r.ref_no} location`} height={180} interactive={false} center={[r.lat, r.lng]} zoom={16}
                   pins={[{ id: r.id, lat: r.lat, lng: r.lng, label: r.ref_no, html: '<div class="pin pin-sos"><span>!</span></div>', size: [44, 52] }]} />
               </div>
               <input className="input" style={{ marginTop: 10, minHeight: 44 }} placeholder={t("admin.u.notePh")} value={notes[r.id] ?? ""}

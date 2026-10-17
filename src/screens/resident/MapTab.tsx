@@ -11,7 +11,8 @@ import { errorKey } from "../../lib/errors";
 import { readPref, writePref } from "../../lib/prefs";
 import { useTitle } from "../../lib/useTitle";
 import { LEVEL_ICON, type Level } from "../../lib/scoring/labels";
-import LeafletMap, { type AreaShape, type LivePosition, type MapPin } from "../../lib/map/LeafletMap";
+import MapView from "../../lib/map/MapView";
+import { type AreaShape, type LivePosition, type MapPin } from "../../lib/map/LeafletMap";
 import { Avatar, Banner } from "../../components/ui/parts";
 import { NotificationBell, issuePinHtml } from "../../components/issues";
 import SosButton from "../../components/SosButton";
@@ -175,7 +176,7 @@ export default function MapTab() {
       </div>
 
       <div className="map-wrap">
-        <LeafletMap label={t("map.title")} height="58vh" pins={pins} areas={shapes} track={track} focus={focus}
+        <MapView label={t("map.title")} height="58vh" pins={pins} areas={shapes} track={track} focus={focus}
           onLocate={(p) => { setMe(p); setLocErr(false); }}
           onLocateError={() => { setLocErr(true); setTrack(false); }} />
         <div className="map-tools">

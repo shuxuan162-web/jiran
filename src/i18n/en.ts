@@ -234,6 +234,8 @@ export const en = {
   "health.fail": "Problem",
   "health.warn": "Check",
   "health.checking": "Checking…",
+  "health.mapGoogle": "Google Maps loaded and the key is accepted for this site",
+  "health.mapGoogleFailed": "Google Maps unavailable ({why}), using OpenStreetMap",
   "health.mapSlow": "Map tiles didn't load. The map still works offline as a list.",
   "health.demoOn": "On: SOS shows a demo modal",
   "health.demoOff": "Off: SOS dials 999 for real",
