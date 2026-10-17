@@ -95,6 +95,8 @@ export const bm: Partial<Record<StringKey, string>> = {
   "map.layer.issues": "Isu",
   "map.layer.neighbours": "Jiran",
   "map.happening": "Sedang berlaku",
+  "om.open": "Buka dalam Organic Maps",
+  "om.route": "Arah dalam Organic Maps",
   "err.generic": "Ada masalah. Sila cuba lagi.",
   "err.invalid_credentials": "E-mel dan kata laluan tidak sepadan.",
 };

@@ -402,3 +402,8 @@ html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after 
 .urgent-flash { animation: urgent-flash 0.5s ease-in-out 6; }
 @keyframes urgent-flash { 50% { background: var(--color-tint-red); box-shadow: 0 0 0 12px var(--color-tint-red); } }
 .btn.armed { outline: 3px solid var(--color-ink); outline-offset: 2px; }
+
+/* ---------- Organic Maps links ---------- */
+.om-links { margin-top: 10px; }
+.om-btn { gap: 8px; }
+.om-dot { width: 14px; height: 14px; border-radius: 50%; background: #2E7D32; box-shadow: inset 0 0 0 3px #A5D6A7; flex: none; }

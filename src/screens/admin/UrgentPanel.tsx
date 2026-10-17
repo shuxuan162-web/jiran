@@ -7,6 +7,7 @@ import { errorKey } from "../../lib/errors";
 import { useTitle } from "../../lib/useTitle";
 import LeafletMap from "../../lib/map/LeafletMap";
 import { Banner, Spinner } from "../../components/ui/parts";
+import OrganicMapsLink from "../../components/OrganicMapsLink";
 
 type Action = "mgmt_confirmed" | "responding" | "resolved" | "false_alarm";
 const ACTIONS: Action[] = ["mgmt_confirmed", "responding", "resolved", "false_alarm"];
@@ -97,6 +98,7 @@ export default function UrgentPanel() {
                 <div>
                   <p style={{ margin: "8px 0 4px" }}><strong>{r.area_name ?? "City of Elmina"}</strong> · {r.lat.toFixed(5)}, {r.lng.toFixed(5)}
                     {r.approximate && <span className="chip" style={{ marginLeft: 6 }}>{t("admin.u.approx")}</span>}</p>
+                  <OrganicMapsLink lat={r.lat} lng={r.lng} name={r.ref_no} compact />
                   <a className="small" href={`https://www.openstreetmap.org/?mlat=${r.lat}&mlon=${r.lng}#map=18/${r.lat}/${r.lng}`} target="_blank" rel="noreferrer">{t("admin.u.openMap")}</a>
                   <p style={{ margin: "8px 0 0" }}>{r.reporter_name} ({r.reporter_nickname})</p>
                   <p className="small" style={{ margin: "2px 0" }}>

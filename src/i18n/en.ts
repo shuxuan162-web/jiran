@@ -523,6 +523,12 @@ export const en = {
   "err.visibility_off": "Turn on map visibility in Settings first.",
   "err.sos_closed": "This emergency is already closed.",
 
+  "om.open": "Open in Organic Maps",
+  "om.route": "Directions in Organic Maps",
+  "om.myLocation": "My location",
+  "om.note": "Free offline map app for Android and iOS, built on OpenStreetMap. Not installed? The link opens",
+  "om.credit": "Directions: Organic Maps",
+
   "err.generic": "Something went wrong. Please try again.",
   "err.network": "We couldn't reach Jiran. Check your connection and try again.",
   "err.invalid_credentials": "That email and password don't match. Check them and try again.",

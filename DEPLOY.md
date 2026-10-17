@@ -33,10 +33,9 @@ supabase functions deploy accept-invite --no-verify-jwt
 ```
 Both functions run before anyone is signed in, so JWT verification is off; they do their own checks (rate limit, invite token) and use the service-role key that Supabase injects. The service-role key never goes into the app or any `VITE_` variable.
 
-### 3. HERE Maps key (phase 3)
-1. Create a free account at platform.here.com, create a project and a **JavaScript (API key)** credential. The Limited plan needs no card; confirm current free limits in the portal.
-2. Restrict the key to your domains: `localhost`, `*.vercel.app` (or your exact Vercel domain).
-3. Put it in `VITE_HERE_API_KEY`. Without it the app falls back to the backup map.
+### 3. Maps (no key needed)
+The in-app map is Leaflet with CARTO/OpenStreetMap tiles, which need no API key. Live location uses Leaflet's `locate()` and stays on the phone unless the resident checks in (rounded to about 100 m, 30 minutes).
+"Open in Organic Maps" buttons hand a place or a route to the free Organic Maps app (organicmaps.app). No key or account is needed, and nothing else is shared.
 
 ### 4. Vercel
 1. Push the repo to GitHub, then on vercel.com click **Add New > Project** and import it. Framework: **Vite**. Build command: `npm run ci` (runs tests, type check, then build). Output: `dist`.
@@ -44,8 +43,6 @@ Both functions run before anyone is signed in, so JWT verification is off; they 
    - `VITE_SUPABASE_URL` = Project URL (Supabase > Project Settings > API)
    - `VITE_SUPABASE_ANON_KEY` = the publishable/anon key
    - `VITE_DEMO_MODE` = `true`
-   - `VITE_MAP_PROVIDER` = `here`
-   - `VITE_HERE_API_KEY` = your HERE key (phase 3)
 3. **Settings > Deployment Protection**: turn **off** Vercel Authentication, or judges will hit a Vercel login page.
 4. Deploy. `vercel.json` already rewrites deep links to `index.html`, so refreshing `/app/profile` works.
 
@@ -94,6 +91,6 @@ These are public demo credentials. Change or delete them before any real use.
 | RLS blocking a legitimate action | The account's `profiles_private.status` is not `active` (pending verification or revoked). Check it in Table Editor. |
 | Certificate upload fails | File over 5 MB or not JPG/PNG/WebP/PDF; or the `ownership-docs` bucket is missing. |
 | Live updates "Problem" on /health | Realtime disabled for the project, or a network blocking websockets; the app falls back to polling. |
-| HERE map not loading / key rejected | Key missing, wrong, or not allowed for this domain. The backup map takes over automatically (phase 3). |
+| Map tiles not loading | /health shows Map: Problem. The tile server may be slow or blocked on the venue Wi-Fi; issues and SOS still work, and the list below the map shows everything. |
 | SOS doesn't open the dialer on a laptop | Desktops can't place calls; `tel:` only works on phones. In demo mode a modal is shown instead. |
 | Scheduled notices not publishing | Phase 4: check `pg_cron` jobs under Database > Cron. Read-time filters still hide expired items. |

@@ -15,6 +15,7 @@ import LeafletMap, { type AreaShape, type LivePosition, type MapPin } from "../.
 import { Avatar, Banner } from "../../components/ui/parts";
 import { NotificationBell, issuePinHtml } from "../../components/issues";
 import SosButton from "../../components/SosButton";
+import OrganicMapsLink from "../../components/OrganicMapsLink";
 import { IconPin, IconX } from "../../components/ui/Icons";
 
 type Layer = "emergencies" | "issues" | "neighbours";
@@ -231,6 +232,7 @@ export default function MapTab() {
               ) : (
                 <button className="btn btn-secondary" disabled={busy} onClick={() => confirm(sel.e)}>{t("map.sosConfirm")}</button>
               )}
+              <OrganicMapsLink lat={sel.e.lat} lng={sel.e.lng} name={t(`sosType.${sel.e.type}` as StringKey)} from={me} compact />
             </>
           ) : (
             <>
@@ -238,6 +240,7 @@ export default function MapTab() {
               <h2 style={{ fontSize: "1.25rem", margin: "8px 0 4px" }}>{t(`cat.${sel.f.title}` as StringKey)}</h2>
               <p className="small muted" style={{ margin: "0 0 10px" }}>{sel.f.ref_no} · {sel.f.area_name ?? t("issue.nearby")} · #{issues.findIndex((x) => x.id === sel.f.id) + 1}</p>
               <button className="btn btn-primary" onClick={() => nav(`/app/issues/${sel.f.id}`)}>{t("map.openIssue")}</button>
+              <OrganicMapsLink lat={sel.f.lat} lng={sel.f.lng} name={sel.f.ref_no} from={me} compact />
             </>
           )}
         </section>

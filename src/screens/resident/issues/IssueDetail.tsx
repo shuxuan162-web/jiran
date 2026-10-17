@@ -13,6 +13,7 @@ import LeafletMap from "../../../lib/map/LeafletMap";
 import { Avatar, Banner, Spinner, TopBar } from "../../../components/ui/parts";
 import { CategoryName, PriorityLabel, StatusChip, WhyLine, issuePinHtml } from "../../../components/issues";
 import { IconUpload } from "../../../components/ui/Icons";
+import OrganicMapsLink from "../../../components/OrganicMapsLink";
 
 const OPEN: IssueStatus[] = ["submitted", "acknowledged", "assigned", "in_progress"];
 
@@ -183,6 +184,7 @@ export default function IssueDetail() {
       <LeafletMap label={t("issue.where")} height={200} interactive={false} center={[issue.lat, issue.lng]} zoom={16}
         pins={[{ id: issue.id, lat: issue.lat, lng: issue.lng, label: issue.ref_no, html: issuePinHtml(open ? priorityLevel(issue.p) : "low") }]} />
       <p className="small muted" style={{ marginTop: 6 }}>{where.join(" · ")}</p>
+      <OrganicMapsLink lat={issue.lat} lng={issue.lng} name={issue.ref_no} />
 
       <h2 className="section">{t("issue.comments")}</h2>
       <section className="card">
