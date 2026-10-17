@@ -1,0 +1,92 @@
+# Deploying Jiran
+
+Jiran is a static React app on Vercel plus a Supabase project (database, auth, storage, realtime, two edge functions). There is no server of our own to keep running.
+
+Current live deployment (phase 1):
+
+| Piece | Where |
+| --- | --- |
+| App | https://jiran-elmina-sims-city.vercel.app |
+| Health check | https://jiran-elmina-sims-city.vercel.app/health |
+| Supabase project | `lkvaewjjxjkykxlrkvhr` (region ap-southeast-1, Singapore) |
+| Vercel project | `jiran-elmina` |
+
+## Fresh setup, step by step
+
+### 1. Supabase project
+1. Go to supabase.com, sign in, click **New project**. Region: **Southeast Asia (Singapore)**. Save the database password somewhere safe.
+2. Open **SQL Editor**, paste `supabase/migrations/0001_core.sql`, click **Run**. Repeat for every later migration file, in number order.
+3. Paste `supabase/seed.sql` and click **Run**. It is safe to run again; it never duplicates rows.
+4. **Authentication > Sign In / Providers > Email**: keep Email enabled. Turn **off** "Allow new users to sign up" (owners register through the `register-owner` function, sub-owners only through invites). Turn **on** "Leaked password protection" if your plan allows it.
+5. **Authentication > URL Configuration**: set Site URL to your Vercel URL and add `http://localhost:5173` to Redirect URLs.
+6. Storage buckets (`ownership-docs` private, `public-media` public, 5 MB, images/PDF) are created by the migration. Check they exist under **Storage**.
+7. Realtime: from phase 2 on, migrations add the realtime tables. Check under **Database > Publications > supabase_realtime**.
+
+### 2. Edge functions
+With the Supabase CLI (`npm i -g supabase`):
+```bash
+supabase login
+supabase link --project-ref <your-ref>
+supabase functions deploy register-owner --no-verify-jwt
+supabase functions deploy accept-invite --no-verify-jwt
+```
+Both functions run before anyone is signed in, so JWT verification is off; they do their own checks (rate limit, invite token) and use the service-role key that Supabase injects. The service-role key never goes into the app or any `VITE_` variable.
+
+### 3. HERE Maps key (phase 3)
+1. Create a free account at platform.here.com, create a project and a **JavaScript (API key)** credential. The Limited plan needs no card; confirm current free limits in the portal.
+2. Restrict the key to your domains: `localhost`, `*.vercel.app` (or your exact Vercel domain).
+3. Put it in `VITE_HERE_API_KEY`. Without it the app falls back to the backup map.
+
+### 4. Vercel
+1. Push the repo to GitHub, then on vercel.com click **Add New > Project** and import it. Framework: **Vite**. Build command: `npm run ci` (runs tests, type check, then build). Output: `dist`.
+2. **Settings > Environment Variables** (all environments):
+   - `VITE_SUPABASE_URL` = Project URL (Supabase > Project Settings > API)
+   - `VITE_SUPABASE_ANON_KEY` = the publishable/anon key
+   - `VITE_DEMO_MODE` = `true`
+   - `VITE_MAP_PROVIDER` = `here`
+   - `VITE_HERE_API_KEY` = your HERE key (phase 3)
+3. **Settings > Deployment Protection**: turn **off** Vercel Authentication, or judges will hit a Vercel login page.
+4. Deploy. `vercel.json` already rewrites deep links to `index.html`, so refreshing `/app/profile` works.
+
+### 5. Demo accounts (seeded)
+Password for all: `JiranDemo2026!`
+
+| Role | Email | Notes |
+| --- | --- | --- |
+| Management | admin@jiran.example.com | Admin app at `/admin` |
+| Security desk | security@jiran.example.com | Sees Urgent, Map, Health only |
+| Owner A | lakewalker@jiran.example.com | Elmina Green, verified |
+| Owner B | kopikaki@jiran.example.com | Elmina Valley, verified |
+| Sub-owner of A | nasilemak@jiran.example.com | Invited by LakeWalker |
+| Owner D | cyclingauntie@jiran.example.com | Denai Alam, verified |
+| New owner | newneighbour@jiran.example.com | Waiting for verification |
+
+These are public demo credentials. Change or delete them before any real use.
+
+### 6. Smoke test on the live URL (phase 1)
+1. Open `/health`: Database, Sign-in, Storage, Live updates and Server functions show **OK**; Map shows **Check** until the HERE key is added; Demo mode shows **On**.
+2. Log in as Owner B: lands on the Map tab; all 5 tabs open; Profile shows the unit only to you.
+3. Log in as Owner A: Profile > Register sub-owner > invite a new email; copy the link; open it in a private window; set a nickname and password; you land in the app as a sub-owner without the Billing tile or sub-owner menu.
+4. Back as Owner A: remove that sub-owner; the sub-owner's next page load shows "Your access has ended".
+5. Create a new owner via **Create account** with any photo as the certificate; you land on the Verification screen.
+6. Log in to `/admin/login` as management > Verifications: view the document, approve it. The new owner's screen turns to Verified within 15 seconds; tap **Enter Jiran**.
+7. Try the resident login with the management account: it is refused and sent to the management login.
+
+## Free-tier warnings
+- Supabase free projects **pause after about a week of inactivity**. Open the dashboard and click Restore the day before the demo, then run `/health`.
+- Redeploy after every phase so the live URL never falls behind.
+
+## Troubleshooting
+| Symptom | Likely cause and fix |
+| --- | --- |
+| Blank page after deploy | `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY` missing: the app shows "Setup needed". Add them and redeploy (Vite bakes them in at build time). |
+| Vercel login page instead of the app | Deployment Protection is on. Turn off Vercel Authentication. |
+| 404 on refresh of a deep link | `vercel.json` missing from the deploy. |
+| "That email and password don't match" for seeded users | Seed not run, or run before the migration. Run migration, then seed. |
+| Sign-up fails with "Something went wrong" | Edge functions not deployed, or deployed with JWT verification on. Redeploy with `--no-verify-jwt`. |
+| RLS blocking a legitimate action | The account's `profiles_private.status` is not `active` (pending verification or revoked). Check it in Table Editor. |
+| Certificate upload fails | File over 5 MB or not JPG/PNG/WebP/PDF; or the `ownership-docs` bucket is missing. |
+| Live updates "Problem" on /health | Realtime disabled for the project, or a network blocking websockets; the app falls back to polling. |
+| HERE map not loading / key rejected | Key missing, wrong, or not allowed for this domain. The backup map takes over automatically (phase 3). |
+| SOS doesn't open the dialer on a laptop | Desktops can't place calls; `tel:` only works on phones. In demo mode a modal is shown instead. |
+| Scheduled notices not publishing | Phase 4: check `pg_cron` jobs under Database > Cron. Read-time filters still hide expired items. |
