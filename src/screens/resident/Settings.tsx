@@ -7,6 +7,7 @@ import { useTitle } from "../../lib/useTitle";
 import { Banner, TopBar } from "../../components/ui/parts";
 import { setPrivacy } from "../../features/sos/api";
 import { errorKey } from "../../lib/errors";
+import AreaFollows from "./info/AreaFollows";
 
 export default function Settings() {
   const { t, lang, setLang } = useI18n();
@@ -61,6 +62,8 @@ export default function Settings() {
         </label>
         {privErr && <Banner kind="error">{privErr}</Banner>}
       </section>
+
+      <AreaFollows />
 
       <section className="card">
         <fieldset style={{ border: 0, padding: 0, margin: 0 }}>

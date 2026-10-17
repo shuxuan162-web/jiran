@@ -17,10 +17,15 @@ import { Avatar, Banner } from "../../components/ui/parts";
 import { NotificationBell, issuePinHtml } from "../../components/issues";
 import SosButton from "../../components/SosButton";
 import OrganicMapsLink from "../../components/OrganicMapsLink";
-import { IconPin, IconX } from "../../components/ui/Icons";
+import { IconChat, IconPin, IconX } from "../../components/ui/Icons";
+import { feedRowParts } from "../../components/HappeningNow";
+import { mapBubbles, type Bubble } from "../../features/info/api";
+import { timeAgo } from "../../lib/info";
 
-type Layer = "emergencies" | "issues" | "neighbours";
-type Selected = { kind: "emergency"; e: PublicEmergency } | { kind: "issue"; f: FeedItem } | null;
+type Layer = "emergencies" | "notices" | "issues" | "events" | "posts" | "neighbours";
+const LAYERS: Layer[] = ["emergencies", "notices", "issues", "events", "posts", "neighbours"];
+const ALL_ON: Record<Layer, boolean> = { emergencies: true, notices: true, issues: true, events: true, posts: true, neighbours: true };
+type Selected = { kind: "emergency"; e: PublicEmergency } | { kind: "issue" | "notice" | "event"; f: FeedItem } | { kind: "post"; b: Bubble } | null;
 
 const RING: Record<string, string> = { red: "#D71920", orange: "#F26522", amber: "#FDB515", green: "#1F7A5C", blue: "#2F6FB3" };
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
@@ -44,9 +49,10 @@ export default function MapTab() {
   const [presence, setPresence] = useState<Presence | null>(null);
   const [failed, setFailed] = useState(false);
   const [updated, setUpdated] = useState<Date | null>(null);
+  const [bubbles, setBubbles] = useState<Bubble[]>([]);
   const [layers, setLayers] = useState<Record<Layer, boolean>>(() => {
-    try { return { emergencies: true, issues: true, neighbours: true, ...JSON.parse(readPref("mapLayers") ?? "{}") }; }
-    catch { return { emergencies: true, issues: true, neighbours: true }; }
+    try { return { ...ALL_ON, ...JSON.parse(readPref("mapLayers") ?? "{}") }; }
+    catch { return ALL_ON; }
   });
   const [track, setTrack] = useState(false);
   const [me, setMe] = useState<LivePosition | null>(null);
@@ -58,8 +64,8 @@ export default function MapTab() {
 
   const load = useCallback(async () => {
     try {
-      const [f, e] = await Promise.all([feedOrdered(150), activeEmergencies()]);
-      setFeed(f); setSos(e); setFailed(false); setUpdated(new Date());
+      const [f, e, b] = await Promise.all([feedOrdered(150), activeEmergencies(), mapBubbles().catch(() => [] as Bubble[])]);
+      setFeed(f); setSos(e); setBubbles(b); setFailed(false); setUpdated(new Date());
     } catch { setFailed(true); setFeed((x) => x ?? []); }
   }, []);
   const loadPresence = useCallback(() => { mapPresence().then(setPresence).catch(() => {}); }, []);
@@ -84,12 +90,28 @@ export default function MapTab() {
   }), [areas, myArea, presence, layers.neighbours, t]);
 
   const issues = useMemo(() => (feed ?? []).filter((f) => f.kind === "issue"), [feed]);
+  const notices = useMemo(() => (feed ?? []).filter((f) => f.kind === "notice"), [feed]);
+  const events = useMemo(() => (feed ?? []).filter((f) => f.kind === "event"), [feed]);
 
   const pins: MapPin[] = useMemo(() => {
     const out: MapPin[] = [];
     if (layers.issues) for (const f of issues) {
       out.push({ id: f.id, lat: f.lat, lng: f.lng, html: issuePinHtml(f.level as Level), z: Math.round((f.score ?? 0) * 10),
         label: `${f.ref_no}: ${t(`cat.${f.title}` as StringKey)}, ${t(`level.${f.level}` as StringKey)}`, onClick: () => setSel({ kind: "issue", f }) });
+    }
+    if (layers.events) for (const f of events) {
+      out.push({ id: `ev-${f.id}`, lat: f.lat, lng: f.lng, html: '<div class="pin pin-event"><span>📅</span></div>', z: 300,
+        label: `${t("map.layer.events")}: ${f.title}`, onClick: () => setSel({ kind: "event", f }) });
+    }
+    if (layers.notices) for (const f of notices) {
+      if (f.lat == null || f.lng == null) continue;
+      out.push({ id: `no-${f.id}`, lat: f.lat, lng: f.lng, html: `<div class="pin pin-notice"><span>${f.status === "safety" ? "⚠" : "🛠"}</span></div>`, z: 5000,
+        label: `${t(`notice.cat.${f.status}` as StringKey)}: ${f.title}`, onClick: () => setSel({ kind: "notice", f }) });
+    }
+    if (layers.posts) for (const b of bubbles) {
+      out.push({ id: `po-${b.id}`, lat: b.lat, lng: b.lng, size: [180, 64], z: 200,
+        html: `<div class="bubble-pin">${avatarHtml(b.nickname ?? "?", b.avatar, b.is_mine)}<div class="bubble-text">${esc(b.snippet.length > 60 ? b.snippet.slice(0, 57) + "…" : b.snippet)}</div></div>`,
+        label: `${b.nickname ?? t("post.aNeighbour")}: ${b.snippet}`, onClick: () => setSel({ kind: "post", b }) });
     }
     if (layers.neighbours && presence) {
       for (const a of presence.areas) for (const v of a.avatars ?? []) {
@@ -106,11 +128,11 @@ export default function MapTab() {
         label: `${t(`sosType.${e.type}` as StringKey)}: ${t(`sosStatus.${e.status}` as StringKey)}`, onClick: () => setSel({ kind: "emergency", e }) });
     }
     return out;
-  }, [issues, sos, presence, layers, t]);
+  }, [issues, notices, events, bubbles, sos, presence, layers, t]);
 
   const toggle = (k: Layer) => setLayers((l) => ({ ...l, [k]: !l[k] }));
   const counts: Record<Layer, number> = {
-    emergencies: sos.length, issues: issues.length,
+    emergencies: sos.length, issues: issues.length, notices: notices.length, events: events.length, posts: bubbles.length,
     neighbours: (presence?.areas.reduce((s, a) => s + a.count, 0) ?? 0),
   };
   const visibility = presence?.me?.map_visibility ?? profile?.map_visibility ?? "unset";
@@ -168,7 +190,7 @@ export default function MapTab() {
       )}
 
       <div className="chip-row layer-chips" role="group" aria-label={t("map.layers")}>
-        {(["emergencies", "issues", "neighbours"] as Layer[]).map((k) => (
+        {LAYERS.map((k) => (
           <button key={k} type="button" className={`chip-btn layer-${k}`} aria-pressed={layers[k]} onClick={() => toggle(k)}>
             {t(`map.layer.${k}` as StringKey)} <span className="count">{counts[k]}</span>
           </button>
@@ -186,6 +208,7 @@ export default function MapTab() {
             <IconPin />
           </button>
           {me && <button type="button" className="icon-btn" aria-label={t("map.centreMe")} onClick={() => setFocus({ lat: me.lat, lng: me.lng, zoom: 16, key: Date.now() })}>◎</button>}
+          <Link to="/app/community" className="icon-btn" aria-label={t("community.title")}><IconChat /></Link>
         </div>
         <div className="map-sos"><SosButton variant="small" /></div>
       </div>
@@ -235,6 +258,29 @@ export default function MapTab() {
               )}
               <OrganicMapsLink lat={sel.e.lat} lng={sel.e.lng} name={t(`sosType.${sel.e.type}` as StringKey)} from={me} compact />
             </>
+          ) : sel.kind === "post" ? (
+            <>
+              <span className="chip green">{t("map.layer.posts")}</span>
+              <h2 style={{ fontSize: "1.125rem", margin: "8px 0 4px" }}>{sel.b.nickname ?? t("post.aNeighbour")}</h2>
+              <p style={{ margin: "0 0 6px" }}>{sel.b.snippet}</p>
+              <p className="small muted" style={{ margin: "0 0 10px" }}>{timeAgo(sel.b.created_at)}</p>
+              <button className="btn btn-primary" onClick={() => nav(`/app/community/${sel.b.id}`)}>{t("map.openPost")}</button>
+            </>
+          ) : sel.kind === "notice" ? (
+            <>
+              <span className={`chip lvl-${sel.f.level}`}>{t(`notice.cat.${sel.f.status}` as StringKey)}</span>
+              <h2 style={{ fontSize: "1.25rem", margin: "8px 0 4px" }}>{sel.f.title}</h2>
+              <p className="small muted" style={{ margin: "0 0 10px" }}>{sel.f.area_name ?? t("notice.everyone")}</p>
+              <button className="btn btn-primary" onClick={() => nav(`/app/announcements/${sel.f.id}`)}>{t("map.openNotice")}</button>
+            </>
+          ) : sel.kind === "event" ? (
+            <>
+              <span className="chip green">{t("map.layer.events")}</span>
+              <h2 style={{ fontSize: "1.25rem", margin: "8px 0 4px" }}>{sel.f.title}</h2>
+              <p className="small muted" style={{ margin: "0 0 10px" }}>{feedRowParts(sel.f, sos, t).sub}</p>
+              <button className="btn btn-primary" onClick={() => nav(`/app/events/${sel.f.id}`)}>{t("map.openEvent")}</button>
+              <OrganicMapsLink lat={sel.f.lat} lng={sel.f.lng} name={sel.f.title} from={me} compact />
+            </>
           ) : (
             <>
               <span className={`chip lvl-${sel.f.level}`}><span aria-hidden="true">{LEVEL_ICON[sel.f.level as Level]}</span> {t(`level.${sel.f.level}` as StringKey)}</span>
@@ -250,20 +296,23 @@ export default function MapTab() {
       <h2 className="section">{t("map.happening")}</h2>
       {happening.length === 0 ? <div className="card muted">{t("issues.emptyOpen")}</div> : (
         <div className="list" role="list">
-          {happening.map((f) => (
-            <button key={f.id} role="listitem" className={`list-row feed-row tier-${f.tier}`}
-              onClick={() => { setFocus({ lat: f.lat, lng: f.lng, zoom: 16, key: Date.now() });
-                if (f.kind === "emergency") { const e = sos.find((x) => x.id === f.id); if (e) setSel({ kind: "emergency", e }); }
-                else setSel({ kind: "issue", f }); }}>
-              <span className={`feed-dot lvl-${f.level}`} aria-hidden="true">{f.kind === "emergency" ? "!" : LEVEL_ICON[f.level]}</span>
-              <span className="grow">
-                {f.kind === "emergency" ? t(`sosType.${(sos.find((x) => x.id === f.id)?.type ?? "unspecified")}` as StringKey) : t(`cat.${f.title}` as StringKey)}
-                <span className="small muted" style={{ display: "block", fontWeight: 600 }}>
-                  {f.kind === "emergency" ? t("map.tierEmergency") : t(`level.${f.level}` as StringKey)} · {f.area_name ?? t("issue.nearby")} · {ago(f.created_at)}
+          {happening.map((f) => {
+            const r = feedRowParts(f, sos, t);
+            return (
+              <button key={`${f.kind}-${f.id}`} role="listitem" className={`list-row feed-row tier-${f.tier} kind-${f.kind}`}
+                onClick={() => {
+                  if (f.lat != null && f.lng != null) setFocus({ lat: f.lat, lng: f.lng, zoom: 16, key: Date.now() });
+                  if (f.kind === "emergency") { const e = sos.find((x) => x.id === f.id); if (e) setSel({ kind: "emergency", e }); }
+                  else setSel({ kind: f.kind, f });
+                }}>
+                <span className={`feed-dot lvl-${f.level}`} aria-hidden="true">{r.icon}</span>
+                <span className="grow">
+                  {r.title}
+                  <span className="small muted" style={{ display: "block", fontWeight: 600 }}>{r.sub}{f.kind === "event" ? "" : ` · ${ago(f.created_at)}`}</span>
                 </span>
-              </span>
-            </button>
-          ))}
+              </button>
+            );
+          })}
         </div>
       )}
       <Link to="/app/issues" className="btn btn-ghost" style={{ marginTop: 12 }}>{t("map.seeAll", { n: issues.length })}</Link>

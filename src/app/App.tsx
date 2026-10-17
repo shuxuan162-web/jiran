@@ -32,6 +32,15 @@ import EmergencyScreen from "../screens/resident/sos/EmergencyScreen";
 import EmergencyReport from "../screens/resident/sos/EmergencyReport";
 import SosLive from "../screens/resident/sos/SosLive";
 import { SosProvider } from "../features/sos/SosProvider";
+import Announcements, { AnnouncementDetail } from "../screens/resident/info/Announcements";
+import NewsletterReader from "../screens/resident/info/Newsletter";
+import Community, { NewPost, PostDetail } from "../screens/resident/community/Community";
+import Events, { CreateEvent, EventDetail } from "../screens/resident/events/Events";
+import Publish from "../screens/admin/Publish";
+import EventsAdmin from "../screens/admin/EventsAdmin";
+import Moderation from "../screens/admin/Moderation";
+import NewsletterAdmin from "../screens/admin/NewsletterAdmin";
+import Analytics from "../screens/admin/Analytics";
 
 /** Sends each person to the right place for who they are and where they are in onboarding. */
 function Home() {
@@ -141,6 +150,16 @@ export default function App() {
               <Route path="emergency" element={<EmergencyScreen />} />
               <Route path="emergency/report" element={<EmergencyReport />} />
               <Route path="sos/:id" element={<SosLive />} />
+              <Route path="announcements" element={<Announcements />} />
+              <Route path="announcements/:id" element={<AnnouncementDetail />} />
+              <Route path="community" element={<Community />} />
+              <Route path="community/new" element={<NewPost />} />
+              <Route path="community/:id" element={<PostDetail />} />
+              <Route path="events" element={<Events />} />
+              <Route path="events/new" element={<CreateEvent />} />
+              <Route path="events/:id" element={<EventDetail />} />
+              <Route path="newsletter" element={<NewsletterReader />} />
+              <Route path="newsletter/:id" element={<NewsletterReader />} />
             </Route>
 
             <Route path="/admin/login" element={<ResidentFrame><SignIn mode="staff" /></ResidentFrame>} />
@@ -152,6 +171,11 @@ export default function App() {
               <Route path="map" element={<AdminMap />} />
               <Route path="issues" element={<StaffGate managementOnly><IssueQueue /></StaffGate>} />
               <Route path="issues/:id" element={<div className="app-frame" style={{ margin: 0 }}><IssueDetail /></div>} />
+              <Route path="publish" element={<StaffGate managementOnly><Publish /></StaffGate>} />
+              <Route path="events" element={<StaffGate managementOnly><EventsAdmin /></StaffGate>} />
+              <Route path="moderation" element={<StaffGate managementOnly><Moderation /></StaffGate>} />
+              <Route path="newsletter" element={<StaffGate managementOnly><NewsletterAdmin /></StaffGate>} />
+              <Route path="analytics" element={<StaffGate managementOnly><Analytics /></StaffGate>} />
               <Route path=":section" element={<AdminSoon />} />
             </Route>
 

@@ -4,7 +4,7 @@ import { useI18n, type StringKey } from "../../i18n";
 import { DemoBanner } from "../../components/ui/parts";
 import {
   IconAlert, IconCalendar, IconChart, IconClipboard, IconHelp, IconList, IconLogout, IconMegaphone, IconPin,
-  IconPlay, IconReceipt, IconShield, IconStar, IconWrench, IconHeart,
+  IconMail, IconPlay, IconReceipt, IconShield, IconStar, IconWrench, IconHeart,
 } from "../../components/ui/Icons";
 
 type Item = { to: string; key: StringKey; Icon: typeof IconAlert; staff?: boolean };
@@ -15,6 +15,7 @@ const ITEMS: Item[] = [
   { to: "/admin/map", key: "admin.nav.map", Icon: IconPin, staff: true },
   { to: "/admin/publish", key: "admin.nav.publish", Icon: IconMegaphone },
   { to: "/admin/events", key: "admin.nav.events", Icon: IconCalendar },
+  { to: "/admin/newsletter", key: "admin.nav.newsletter", Icon: IconMail },
   { to: "/admin/moderation", key: "admin.nav.moderation", Icon: IconShield },
   { to: "/admin/analytics", key: "admin.nav.analytics", Icon: IconChart },
   { to: "/admin/verifications", key: "admin.nav.verifications", Icon: IconClipboard },

@@ -27,7 +27,7 @@ export interface UrgentRow {
   created_at: string; updated_at: string; cancel_until: string;
 }
 export interface FeedItem {
-  kind: "emergency" | "issue" | "notice"; id: string; tier: 1 | 2 | 3; ref_no: string; title: string; area_name: string | null;
+  kind: "emergency" | "issue" | "notice" | "event"; id: string; tier: 1 | 2 | 3; ref_no: string; title: string; area_name: string | null;
   lat: number; lng: number; level: "low" | "medium" | "high" | "urgent"; status: string; score: number | null;
   created_at: string; rank_no: number;
 }

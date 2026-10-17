@@ -52,7 +52,7 @@ export async function similarIssues(category: string, lat: number, lng: number, 
   return (data ?? []) as Similar[];
 }
 
-export async function uploadPhoto(userId: string, file: File, folder: "issues" | "comments"): Promise<string> {
+export async function uploadPhoto(userId: string, file: File, folder: "issues" | "comments" | "posts"): Promise<string> {
   const path = `${userId}/${folder}/${Date.now()}-${safeFileName(file.name)}`;
   const { error } = await supabase.storage.from(MEDIA_BUCKET).upload(path, file, { contentType: file.type, upsert: false });
   if (error) throw error;
