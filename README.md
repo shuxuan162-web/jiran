@@ -13,8 +13,8 @@ The residents' app for City of Elmina by Sime Darby Property, built for the **SD
 | Phase | Scope | Status |
 | --- | --- | --- |
 | 1 | Schema, RLS, 4 roles, owner sign-up + verification, sub-owner invites, admin verification queue, /health, deploy | **Live** |
-| 2 | Issues: report, duplicates, upvote, priority, tracking, comments, feedback, admin queue | Next |
-| 3 | Live map (HERE + fallbacks), SOS and emergencies, urgent queue, ordering view | |
+| 2 | Issues: report, duplicates, upvote, priority, tracking, comments, feedback, admin queue | **Live** (migration 0003 pending) |
+| 3 | Live map (HERE + fallbacks), SOS and emergencies, urgent queue, ordering view | Next |
 | 4 | Announcements, maintenance, notifications, posts, events, newsletter, analytics-lite | |
 | 5 | Gamification, avatars | |
 | 6 | Services, mall, properties (lite) | |

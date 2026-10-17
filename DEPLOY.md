@@ -2,7 +2,7 @@
 
 Jiran is a static React app on Vercel plus a Supabase project (database, auth, storage, realtime, two edge functions). There is no server of our own to keep running.
 
-Current live deployment (phase 1):
+Current live deployment (phases 1 and 2):
 
 | Piece | Where |
 | --- | --- |
@@ -16,7 +16,8 @@ Current live deployment (phase 1):
 ### 1. Supabase project
 1. Go to supabase.com, sign in, click **New project**. Region: **Southeast Asia (Singapore)**. Save the database password somewhere safe.
 2. Open **SQL Editor**, paste `supabase/migrations/0001_core.sql`, click **Run**. Repeat for every later migration file, in number order.
-3. Paste `supabase/seed.sql` and click **Run**. It is safe to run again; it never duplicates rows.
+3. Paste `supabase/seed.sql` and click **Run**, then `supabase/seed_issues.sql` (20 demo issues with votes, history and comments). Both are safe to run again; they never duplicate rows.
+   Check: `select public.issue_severity('road','Pothole on the rapid lane',0);` should return **55**. If it returns 75, migration `0003_severity_words.sql` hasn't been run yet.
 4. **Authentication > Sign In / Providers > Email**: keep Email enabled. Turn **off** "Allow new users to sign up" (owners register through the `register-owner` function, sub-owners only through invites). Turn **on** "Leaked password protection" if your plan allows it.
 5. **Authentication > URL Configuration**: set Site URL to your Vercel URL and add `http://localhost:5173` to Redirect URLs.
 6. Storage buckets (`ownership-docs` private, `public-media` public, 5 MB, images/PDF) are created by the migration. Check they exist under **Storage**.
@@ -71,6 +72,12 @@ These are public demo credentials. Change or delete them before any real use.
 5. Create a new owner via **Create account** with any photo as the certificate; you land on the Verification screen.
 6. Log in to `/admin/login` as management > Verifications: view the document, approve it. The new owner's screen turns to Verified within 15 seconds; tap **Enter Jiran**.
 7. Try the resident login with the management account: it is refused and sent to the management login.
+
+### 7. Smoke test (phase 2: issues)
+1. As Owner B: Map tab shows issue pins and the top 5. Open JRN-2610-0013, tap **Upvote**: a toast shows the queue position.
+2. **Report an issue**: drop a pin, pick a category, describe it. Step 4 lists similar nearby reports; send it and note the reference number and queue position.
+3. As management, `/admin/issues`: tick the new issue, set **Assigned** with a team and a note. Owner B's bell shows a new notification; the timeline shows the step.
+4. Set it to **Fixed**. As Owner B, answer "No, not fixed": the issue reopens with higher severity and management is notified.
 
 ## Free-tier warnings
 - Supabase free projects **pause after about a week of inactivity**. Open the dashboard and click Restore the day before the demo, then run `/health`.
