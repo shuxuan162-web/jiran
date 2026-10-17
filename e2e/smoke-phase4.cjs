@@ -75,7 +75,7 @@ const out = (k, v) => console.log(`${k}: ${typeof v === 'string' ? v.replace(/\s
     await A.goto(base + '/app/events/new'); await A.waitForTimeout(3000);
     await A.getByLabel('Event name').fill(`Smoke test event ${stamp}`);
     await A.locator('textarea').fill('(smoke test) Checking event approval and check-in.');
-    await A.getByLabel('Place').fill('Elmina Green 4 park');
+    await A.getByLabel('Place', { exact: true }).fill('Elmina Green 4 park');
     const map = A.locator('.map-wrap, [aria-label="Where on the map"]').first();
     const box = await A.locator('.gm-style, .leaflet-container').first().boundingBox();
     await A.mouse.click(box.x + box.width / 2, box.y + box.height / 2); await A.waitForTimeout(800);
@@ -118,16 +118,35 @@ const out = (k, v) => console.log(`${k}: ${typeof v === 'string' ? v.replace(/\s
     out('follows', (await B.locator('section', { hasText: 'Areas I follow' }).innerText()).slice(0, 200));
   });
   await B.screenshot({ path: '/tmp/t/settings.png', fullPage: false });
-  // clean-up
-  await step('cleanup', async () => {
+  // clean-up: each part on its own, and it also clears anything an earlier run left behind
+  await step('cleanup notices', async () => {
     await m.goto(base + '/admin/publish'); await m.waitForTimeout(3000);
-    await m.locator('tr', { hasText: title }).getByRole('button', { name: 'Withdraw' }).click(); await m.waitForTimeout(2000);
+    for (let i = 0; i < 5; i++) {
+      const btn = m.locator('tr', { hasText: 'Smoke test notice' }).getByRole('button', { name: 'Withdraw' }).first();
+      if (!(await btn.count())) break;
+      await btn.click(); await m.waitForTimeout(2000);
+    }
+    out('notices left live', await m.locator('tr', { hasText: 'Smoke test notice' }).getByRole('button', { name: 'Withdraw' }).count());
+  });
+  await step('cleanup events', async () => {
     await m.goto(base + '/admin/events'); await m.waitForTimeout(3000);
-    await m.locator('tr', { hasText: `Smoke test event ${stamp}` }).getByRole('button', { name: 'Cancel this event' }).click(); await m.waitForTimeout(2000);
-    await B.goto(base + '/app/community?tab=mine'); await B.waitForTimeout(3000);
-    await B.locator('.post-card', { hasText: `smoke test ${stamp}) Hello` }).first().click(); await B.waitForTimeout(2500);
-    await B.getByRole('button', { name: 'Delete my post' }).click(); await B.waitForTimeout(2500);
-    out('cleanup', 'done');
+    for (let i = 0; i < 5; i++) {
+      const btn = m.locator('tr', { hasText: 'Smoke test event' }).getByRole('button', { name: 'Cancel this event' }).first();
+      if (!(await btn.count())) break;
+      await btn.click(); await m.waitForTimeout(2000);
+    }
+    out('events left open', await m.locator('tr', { hasText: 'Smoke test event' }).getByRole('button', { name: 'Cancel this event' }).count());
+  });
+  await step('cleanup posts', async () => {
+    for (let i = 0; i < 5; i++) {
+      await B.goto(base + '/app/community?tab=mine'); await B.waitForTimeout(3000);
+      const card = B.locator('.post-card', { hasText: 'smoke test' }).first();
+      if (!(await card.count())) break;
+      await card.click(); await B.waitForTimeout(2500);
+      await B.getByRole('button', { name: 'Delete my post' }).click(); await B.waitForTimeout(2500);
+    }
+    await A.goto(base + '/app/community'); await A.waitForTimeout(3000);
+    out('smoke posts still visible', await A.locator('.post-card', { hasText: 'smoke test' }).count());
   });
   out('ERRORS', errs);
   await b.close();
