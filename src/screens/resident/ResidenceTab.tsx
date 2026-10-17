@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../features/auth/AuthProvider";
 import { useI18n, type StringKey } from "../../i18n";
 import { useTitle } from "../../lib/useTitle";
+import { NotificationBell } from "../../components/issues";
 import {
   IconAlert, IconBell, IconCalendar, IconChat, IconClipboard, IconHelp, IconMegaphone, IconQR, IconReceipt, IconSOS, IconWrench,
 } from "../../components/ui/Icons";
@@ -28,7 +29,7 @@ export default function ResidenceTab() {
     <main className="screen">
       <header className="topbar">
         <h1 className="grow">{t("res.greeting", { name: profile?.nickname ?? "" })}</h1>
-        <button className="icon-btn" aria-label="Notifications"><IconBell /></button>
+        <NotificationBell />
       </header>
 
       <Link to="/app/soon/emergency" className="sos-big"><IconSOS /> {t("res.sos")}</Link>
@@ -39,7 +40,7 @@ export default function ResidenceTab() {
       <h2 className="section">{t("nav.residence")}</h2>
       <div className="tiles">
         {tiles.map(({ key, slug, Icon, tint, ink }) => (
-          <Link key={slug} to={`/app/soon/${slug}`} className="tile" style={{ background: tint, color: "var(--color-ink)" }}>
+          <Link key={slug} to={slug === "complaint" ? "/app/issues" : `/app/soon/${slug}`} className="tile" style={{ background: tint, color: "var(--color-ink)" }}>
             <Icon style={{ color: ink }} />
             <span>{t(key)}</span>
           </Link>
@@ -51,6 +52,7 @@ export default function ResidenceTab() {
         <span className="grow" style={{ fontWeight: 800 }}>{t("res.quests")}</span>
         <span className="chip">{t("common.comingSoon")}</span>
       </Link>
+      <Link to="/app/report" className="fab">+ {t("issues.report")}</Link>
     </main>
   );
 }

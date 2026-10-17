@@ -21,6 +21,11 @@ import SoonScreen from "../screens/resident/SoonScreen";
 import AdminShell from "../screens/admin/AdminShell";
 import Verifications from "../screens/admin/Verifications";
 import Health from "../screens/Health";
+import IssuesHome from "../screens/resident/issues/IssuesHome";
+import ReportIssue from "../screens/resident/issues/ReportIssue";
+import IssueDetail from "../screens/resident/issues/IssueDetail";
+import Notifications from "../screens/resident/Notifications";
+import IssueQueue from "../screens/admin/IssueQueue";
 
 /** Sends each person to the right place for who they are and where they are in onboarding. */
 function Home() {
@@ -122,6 +127,11 @@ export default function App() {
               <Route path="profile/sub-owners" element={<SubOwners />} />
               <Route path="profile/settings" element={<Settings />} />
               <Route path="soon/:feature" element={<SoonScreen />} />
+              <Route path="issues" element={<IssuesHome />} />
+              <Route path="my-reports" element={<IssuesHome initialTab="mine" />} />
+              <Route path="issues/:id" element={<IssueDetail />} />
+              <Route path="report" element={<ReportIssue />} />
+              <Route path="notifications" element={<Notifications />} />
             </Route>
 
             <Route path="/admin/login" element={<ResidentFrame><SignIn mode="staff" /></ResidentFrame>} />
@@ -129,6 +139,8 @@ export default function App() {
               <Route index element={<Navigate to="urgent" replace />} />
               <Route path="verifications" element={<StaffGate managementOnly><Verifications /></StaffGate>} />
               <Route path="health" element={<Health embedded />} />
+              <Route path="issues" element={<StaffGate managementOnly><IssueQueue /></StaffGate>} />
+              <Route path="issues/:id" element={<div className="app-frame" style={{ margin: 0 }}><IssueDetail /></div>} />
               <Route path=":section" element={<AdminSoon />} />
             </Route>
 

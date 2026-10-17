@@ -9,6 +9,9 @@ export function errorKey(err: unknown): StringKey {
   const c = code.toLowerCase();
   if (c.includes("invalid login credentials")) return "err.invalid_credentials";
   if (c.includes("failed to fetch") || c.includes("networkerror") || c.includes("load failed")) return "err.network";
-  const match = Object.keys(en).find((k) => k.startsWith("err.") && c.includes(k.slice(4)));
+  // Longest code wins, so "merge_target_required" doesn't fall back to plain "required"
+  const match = Object.keys(en)
+    .filter((k) => k.startsWith("err.") && c.includes(k.slice(4)))
+    .sort((a, b) => b.length - a.length)[0];
   return (match as StringKey) ?? "err.generic";
 }

@@ -1,25 +1,42 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../features/auth/AuthProvider";
-import { loadAreas, type AreaRow } from "../../features/auth/onboarding";
-import { useI18n } from "../../i18n";
+import { issueFeed, type IssueRow } from "../../features/issues/api";
+import { useI18n, type StringKey } from "../../i18n";
 import { useTitle } from "../../lib/useTitle";
+import { priorityLevel } from "../../lib/scoring/labels";
+import LeafletMap, { type MapPin } from "../../lib/map/LeafletMap";
 import { Avatar, Banner, Spinner } from "../../components/ui/parts";
-import { IconBell, IconPin } from "../../components/ui/Icons";
+import { IssueCard, NotificationBell, issuePinHtml } from "../../components/issues";
 
-const KIND_TINT: Record<string, string> = {
-  precinct: "var(--color-tint-orange)", estate: "var(--color-tint-amber)", park: "var(--color-tint-green)",
-  commercial: "var(--color-tint-blue)", business: "var(--color-tint-purple)",
-};
-
-/** Map tab (home). Phase 1: a list twin of the map; the live HERE map lands in phase 3. */
+/** Map tab (home). Phase 2: open issues on a live map with a list twin. Layers, SOS and the
+ *  social layer arrive in phase 3 on top of this. */
 export default function MapTab() {
   const { t } = useI18n();
+  const nav = useNavigate();
   const { profile } = useAuth();
   useTitle(t("nav.map"));
-  const [areas, setAreas] = useState<AreaRow[] | null>(null);
+  const [issues, setIssues] = useState<IssueRow[] | null>(null);
   const [failed, setFailed] = useState(false);
+  const [updated, setUpdated] = useState<Date | null>(null);
 
-  useEffect(() => { loadAreas().then(setAreas).catch(() => setFailed(true)); }, []);
+  const load = useCallback(async () => {
+    try { setIssues(await issueFeed("open", 100)); setFailed(false); setUpdated(new Date()); }
+    catch { setFailed(true); setIssues((x) => x ?? []); }
+  }, []);
+  useEffect(() => {
+    void load();
+    const id = window.setInterval(load, 20000);
+    return () => window.clearInterval(id);
+  }, [load]);
+
+  const pins: MapPin[] = useMemo(() => (issues ?? []).map((i) => {
+    const lvl = priorityLevel(i.p);
+    return {
+      id: i.id, lat: i.lat, lng: i.lng, html: issuePinHtml(lvl), z: Math.round((i.p ?? 0) * 10),
+      label: `${i.ref_no}: ${t(`level.${lvl}` as StringKey)}`, onClick: () => nav(`/app/issues/${i.id}`),
+    };
+  }), [issues, nav, t]);
 
   return (
     <main className="screen">
@@ -29,33 +46,23 @@ export default function MapTab() {
           <div style={{ fontWeight: 800 }}>{profile?.nickname}</div>
           <div className="muted small">{t("map.title")}</div>
         </div>
-        <button className="icon-btn" aria-label="Notifications"><IconBell /></button>
+        <NotificationBell />
       </header>
 
-      <div className="card" style={{ background: "linear-gradient(160deg, var(--color-map-green), var(--color-lake))", marginBottom: 16 }}>
-        <h2 style={{ fontSize: "1.25rem", marginBottom: 8 }}>{t("map.soonTitle")}</h2>
-        <p style={{ marginBottom: 0 }}>{t("map.soonBody")}</p>
-      </div>
+      <LeafletMap label={t("map.title")} height="52vh" pins={pins} />
+      <p className="small muted" style={{ margin: "6px 0 0" }} aria-live="polite">
+        {updated ? t("map.updated", { time: updated.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }) }) : t("common.loading")}
+      </p>
 
-      {failed && <Banner kind="error">{t("err.network")}</Banner>}
-      {!areas && !failed && <Spinner />}
-      {areas && (
-        <ul className="list" style={{ listStyle: "none", padding: 0, margin: 0 }}>
-          {areas.map((a) => (
-            <li key={a.id} className="list-row" style={{ cursor: "default" }}>
-              <span className="ico" style={{ background: KIND_TINT[a.kind] ?? "var(--color-tint-amber)" }}><IconPin /></span>
-              <span className="grow">
-                {a.name}
-                <span className="muted small" style={{ display: "block", fontWeight: 600 }}>
-                  {a.id === profile?.home_area_id ? t("map.yourArea") + " · " : ""}
-                  {a.center_lat === null ? t("map.unverified") : a.kind}
-                </span>
-              </span>
-              {a.id === profile?.home_area_id && <span className="chip green">{t("map.yourArea")}</span>}
-            </li>
-          ))}
-        </ul>
+      <h2 className="section">{t("map.topIssues")}</h2>
+      {failed && <div style={{ marginBottom: 12 }}><Banner kind="error">{t("err.network")}</Banner></div>}
+      {!issues ? <Spinner /> : issues.length === 0 ? <div className="card muted">{t("issues.emptyOpen")}</div> : (
+        <>
+          {issues.slice(0, 5).map((i) => <IssueCard key={i.id} issue={i} />)}
+          <Link to="/app/issues" className="btn btn-ghost" style={{ marginTop: 12 }}>{t("map.seeAll", { n: issues.length })}</Link>
+        </>
       )}
+      <Link to="/app/report" className="fab">+ {t("issues.report")}</Link>
     </main>
   );
 }

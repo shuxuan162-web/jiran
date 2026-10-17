@@ -52,7 +52,7 @@ export default function ProfileTab() {
       </section>
 
       <h2 className="section">{t("profile.activity")}</h2>
-      <div className="list">{row("/app/soon/activity", "profile.activity", IconList, "var(--color-tint-blue)")}</div>
+      <div className="list">{row("/app/my-reports", "profile.activity", IconList, "var(--color-tint-blue)")}</div>
 
       <h2 className="section">{t("profile.account")}</h2>
       <div className="list">
