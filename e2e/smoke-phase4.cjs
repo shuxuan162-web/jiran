@@ -75,7 +75,7 @@ const out = (k, v) => console.log(`${k}: ${typeof v === 'string' ? v.replace(/\s
     await A.goto(base + '/app/events/new'); await A.waitForTimeout(3000);
     await A.getByLabel('Event name').fill(`Smoke test event ${stamp}`);
     await A.locator('textarea').fill('(smoke test) Checking event approval and check-in.');
-    await A.getByLabel('Place', { exact: true }).fill('Elmina Green 4 park');
+    await A.locator('label.field', { has: A.locator('span.label', { hasText: /^Place$/ }) }).locator('input').fill('Elmina Green 4 park');
     const map = A.locator('.map-wrap, [aria-label="Where on the map"]').first();
     const box = await A.locator('.gm-style, .leaflet-container').first().boundingBox();
     await A.mouse.click(box.x + box.width / 2, box.y + box.height / 2); await A.waitForTimeout(800);
