@@ -87,7 +87,7 @@ const out = (k, v) => console.log(`${k}: ${typeof v === 'string' ? v.replace(/\s
   await step('event approve', async () => {
     await m.goto(base + '/admin/events'); await m.waitForTimeout(3000);
     const card = m.locator('section.card', { hasText: `Smoke test event ${stamp}` });
-    await card.getByRole('button', { name: 'Approve' }).click(); await m.waitForTimeout(2500);
+    await card.getByRole('button', { name: 'Approve' }).first().click(); await m.waitForTimeout(2500);
     out('approve', await banner(m));
     await A.goto(evUrl); await A.waitForTimeout(3000);
     out('host code shown', await A.locator('.big-code').count());
