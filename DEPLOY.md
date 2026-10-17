@@ -62,7 +62,7 @@ Password for all: `JiranDemo2026!`
 These are public demo credentials. Change or delete them before any real use.
 
 ### 6. Smoke test on the live URL (phase 1)
-1. Open `/health`: Database, Sign-in, Storage, Live updates and Server functions show **OK**; Map shows **Check** until the HERE key is added; Demo mode shows **On**.
+1. Open `/health`: Database, Sign-in, Storage, Live updates and Server functions show **OK**; Map shows **OK** (tiles load, no key needed); Demo mode shows **On**.
 2. Log in as Owner B: lands on the Map tab; all 5 tabs open; Profile shows the unit only to you.
 3. Log in as Owner A: Profile > Register sub-owner > invite a new email; copy the link; open it in a private window; set a nickname and password; you land in the app as a sub-owner without the Billing tile or sub-owner menu.
 4. Back as Owner A: remove that sub-owner; the sub-owner's next page load shows "Your access has ended".
