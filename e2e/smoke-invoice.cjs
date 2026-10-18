@@ -36,7 +36,9 @@ const pdf = Buffer.from('%PDF-1.1\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj 2 
   const other = await k.evaluate(async ({ supa, path }) => {
     const key = Object.keys(localStorage).find((x) => x.includes('auth-token'));
     const tok = key ? JSON.parse(localStorage.getItem(key)).access_token : null;
-    const apikey = (window.__jiranAnonKey) || '';
+    const js = [...document.scripts].map((x) => x.src).find((x) => x.includes('/assets/index-'));
+    const src = js ? await (await fetch(js)).text() : '';
+    const apikey = (src.match(/sb_publishable_[A-Za-z0-9_-]+|eyJhbGciOiJIUzI1NiIs[A-Za-z0-9_.-]+/) || [''])[0];
     const res = await fetch(`${supa}/storage/v1/object/sign/invoices/${path}`, { method: 'POST', headers: { Authorization: `Bearer ${tok}`, apikey, 'Content-Type': 'application/json' }, body: JSON.stringify({ expiresIn: 60 }) });
     return `${res.status} ${(await res.text()).slice(0, 80)}`;
   }, { supa, path });
