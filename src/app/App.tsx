@@ -15,6 +15,10 @@ import ResidenceTab from "../screens/resident/ResidenceTab";
 import Mall from "../screens/resident/showroom/Mall";
 import Properties, { PropertyDetail } from "../screens/resident/showroom/Properties";
 import Content from "../screens/admin/Content";
+import ScanQr from "../screens/resident/services/ScanQr";
+import Services, { ServiceRequests, VisitorPasses } from "../screens/resident/services/Services";
+import { Billing, CarPlates, Faq, Feedback, Help } from "../screens/resident/services/Extras";
+import { AdminScan, FeedbackAdmin, ServicesAdmin } from "../screens/admin/ServicesAdmin";
 import ProfileTab from "../screens/resident/ProfileTab";
 import SubOwners from "../screens/resident/SubOwners";
 import Settings from "../screens/resident/Settings";
@@ -143,6 +147,15 @@ export default function App() {
               <Route path="mall" element={<Mall />} />
               <Route path="properties" element={<Properties />} />
               <Route path="properties/:slug" element={<PropertyDetail />} />
+              <Route path="scan" element={<ScanQr />} />
+              <Route path="services" element={<Services />} />
+              <Route path="services/requests" element={<ServiceRequests />} />
+              <Route path="services/visitors" element={<VisitorPasses />} />
+              <Route path="faq" element={<Faq />} />
+              <Route path="feedback" element={<Feedback />} />
+              <Route path="billing" element={<Billing />} />
+              <Route path="profile/plates" element={<CarPlates />} />
+              <Route path="help" element={<Help />} />
               <Route path="profile" element={<ProfileTab />} />
               <Route path="profile/sub-owners" element={<SubOwners />} />
               <Route path="profile/settings" element={<Settings />} />
@@ -184,6 +197,9 @@ export default function App() {
               <Route path="newsletter" element={<StaffGate managementOnly><NewsletterAdmin /></StaffGate>} />
               <Route path="analytics" element={<StaffGate managementOnly><Analytics /></StaffGate>} />
               <Route path="content" element={<StaffGate managementOnly><Content /></StaffGate>} />
+              <Route path="scan" element={<AdminScan />} />
+              <Route path="services" element={<StaffGate managementOnly><ServicesAdmin /></StaffGate>} />
+              <Route path="surveys" element={<StaffGate managementOnly><FeedbackAdmin /></StaffGate>} />
               <Route path=":section" element={<AdminSoon />} />
             </Route>
 

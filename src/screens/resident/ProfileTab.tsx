@@ -66,7 +66,7 @@ export default function ProfileTab() {
       <h2 className="section">{t("profile.account")}</h2>
       <div className="list">
         {isOwner && row("/app/profile/sub-owners", "profile.subOwners", IconUsers, "var(--color-tint-amber)")}
-        {row("/app/soon/carplates", "profile.carPlates", IconCar, "var(--color-tint-orange)")}
+        {row("/app/profile/plates", "profile.carPlates", IconCar, "var(--color-tint-orange)")}
         {row("/app/rewards", "profile.rewards", IconTrophy, "var(--color-tint-amber)")}
         {row("/app/profile/character", "ce.title", IconPerson, "var(--color-tint-red)")}
         {row("/emails", "profile.emails", IconMail, "var(--color-tint-purple)")}
@@ -75,7 +75,7 @@ export default function ProfileTab() {
       <h2 className="section">{t("profile.settings")}</h2>
       <div className="list">
         {row("/app/profile/settings", "profile.settings", IconSettings, "var(--color-tint-green)")}
-        {row("/app/soon/help", "profile.help", IconHelp, "var(--color-tint-blue)")}
+        {row("/app/help", "profile.help", IconHelp, "var(--color-tint-blue)")}
       </div>
 
       <button className="btn btn-ghost" style={{ marginTop: 32 }} onClick={() => signOut()}>

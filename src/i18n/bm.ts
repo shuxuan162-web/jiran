@@ -156,4 +156,16 @@ export const bm: Partial<Record<StringKey, string>> = {
   "mall.tab.plan": "Pelan lantai",
   "mall.tab.visit": "Cara ke sini",
   "map.layer.places": "Tempat",
+  // Phase 7 (draft, needs native review)
+  "qr.title": "Imbas QR",
+  "qr.turnOn": "Hidupkan kamera",
+  "qr.turnOff": "Matikan kamera",
+  "svc.title": "Perkhidmatan",
+  "svc.visitors": "Pas pelawat",
+  "svc.requests": "Permintaan perkhidmatan",
+  "faq.title": "Soalan lazim",
+  "fb.title": "Maklum balas",
+  "bill.title": "Bil",
+  "plates.title": "Nombor plat kereta",
+  "help.title": "Bantuan, privasi & keselamatan",
 };

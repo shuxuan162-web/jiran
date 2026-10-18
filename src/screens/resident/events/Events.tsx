@@ -12,6 +12,8 @@ import { useTitle } from "../../../lib/useTitle";
 import { Avatar, Banner, Field, Spinner, TopBar } from "../../../components/ui/parts";
 import { NotificationBell } from "../../../components/issues";
 import OrganicMapsLink from "../../../components/OrganicMapsLink";
+import QrImage from "../../../components/QrImage";
+import { eventQr } from "../../../lib/qr";
 import { IconCalendar, IconCheck, IconPin, IconUsers } from "../../../components/ui/Icons";
 
 const fmtDay = (iso: string) => new Date(iso).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
@@ -200,6 +202,7 @@ export function EventDetail() {
                 <strong>{t("event.checkinQ")}</strong>
                 <p className="small muted" style={{ margin: "4px 0 8px" }}>{t("event.checkinLead")}</p>
                 <button className="btn btn-primary btn-small" disabled={busy} onClick={() => checkIn(false)}>{t("event.checkinHere")}</button>
+                <Link to="/app/scan" className="btn btn-secondary btn-small" style={{ marginLeft: 8 }}>{t("event.scanQr")}</Link>
                 {!showCode ? <button className="link-btn" style={{ marginLeft: 12 }} onClick={() => setShowCode(true)}>{t("event.useCode")}</button> : (
                   <div className="row" style={{ gap: 8, marginTop: 10 }}>
                     <input className="input" inputMode="numeric" maxLength={6} value={typed} aria-label={t("event.codeLabel")}
@@ -217,7 +220,10 @@ export function EventDetail() {
           <div className="card" style={{ marginTop: 12, background: "var(--color-tint-amber)" }}>
             <strong>{t("event.yourCode")}</strong>
             <div className="big-code" aria-label={code.split("").join(" ")}>{code}</div>
-            <p className="small" style={{ margin: 0 }}>{t("event.yourCodeLead")}</p>
+            <div style={{ display: "grid", placeItems: "center", margin: "6px 0 8px" }}>
+              <QrImage value={eventQr(e.id, code)} size={180} label={t("event.qrAlt", { title: e.title })} />
+            </div>
+            <p className="small" style={{ margin: 0 }}>{t("event.yourCodeLeadQr")}</p>
           </div>
         )}
 

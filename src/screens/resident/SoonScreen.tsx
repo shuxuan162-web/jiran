@@ -7,7 +7,7 @@ const NAMES: Record<string, StringKey> = {
   announcements: "res.tile.announcements", services: "res.tile.services", complaint: "res.tile.complaint",
   feedback: "res.tile.feedback", emergency: "res.tile.emergency", faq: "res.tile.faq", events: "res.tile.events",
   billing: "res.tile.billing", qr: "res.tile.qr", mall: "mall.title", properties: "props.title",
-  rewards: "profile.rewards", activity: "profile.activity", carplates: "profile.carPlates", help: "profile.help",
+  rewards: "profile.rewards", facilities: "svc.facilities", activity: "profile.activity", carplates: "profile.carPlates", help: "profile.help",
 };
 
 /** Friendly placeholder so navigation never breaks while a module is being built. */

@@ -16,14 +16,14 @@ import {
 
 const TILES: { key: StringKey; to: string; Icon: typeof IconBell; tint: string; ink: string; ownerOnly?: boolean }[] = [
   { key: "res.tile.announcements", to: "/app/announcements", Icon: IconMegaphone, tint: "var(--color-tint-red)", ink: "var(--color-red)" },
-  { key: "res.tile.services", to: "/app/soon/services", Icon: IconWrench, tint: "var(--color-tint-blue)", ink: "#1F5A93" },
+  { key: "res.tile.services", to: "/app/services", Icon: IconWrench, tint: "var(--color-tint-blue)", ink: "#1F5A93" },
   { key: "res.tile.complaint", to: "/app/issues", Icon: IconAlert, tint: "var(--color-tint-orange)", ink: "#B5400C" },
-  { key: "res.tile.feedback", to: "/app/soon/feedback", Icon: IconChat, tint: "var(--color-tint-purple)", ink: "#5B3B8C" },
+  { key: "res.tile.feedback", to: "/app/feedback", Icon: IconChat, tint: "var(--color-tint-purple)", ink: "#5B3B8C" },
   { key: "res.tile.emergency", to: "/app/emergency", Icon: IconSOS, tint: "var(--color-tint-red)", ink: "var(--color-urgent)" },
-  { key: "res.tile.faq", to: "/app/soon/faq", Icon: IconHelp, tint: "var(--color-tint-green)", ink: "var(--color-success)" },
+  { key: "res.tile.faq", to: "/app/faq", Icon: IconHelp, tint: "var(--color-tint-green)", ink: "var(--color-success)" },
   { key: "res.tile.events", to: "/app/events", Icon: IconCalendar, tint: "var(--color-tint-amber)", ink: "#8A5300" },
-  { key: "res.tile.billing", to: "/app/soon/billing", Icon: IconReceipt, tint: "var(--color-tint-blue)", ink: "#1F5A93", ownerOnly: true },
-  { key: "res.tile.qr", to: "/app/soon/qr", Icon: IconQR, tint: "var(--color-tint-orange)", ink: "#B5400C" },
+  { key: "res.tile.billing", to: "/app/billing", Icon: IconReceipt, tint: "var(--color-tint-blue)", ink: "#1F5A93", ownerOnly: true },
+  { key: "res.tile.qr", to: "/app/scan", Icon: IconQR, tint: "var(--color-tint-orange)", ink: "#B5400C" },
 ];
 
 export default function ResidenceTab() {

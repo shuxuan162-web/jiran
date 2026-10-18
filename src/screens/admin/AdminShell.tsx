@@ -4,7 +4,7 @@ import { useI18n, type StringKey } from "../../i18n";
 import { DemoBanner } from "../../components/ui/parts";
 import {
   IconAlert, IconCalendar, IconChart, IconClipboard, IconHelp, IconList, IconLogout, IconMegaphone, IconPin,
-  IconMail, IconPlay, IconReceipt, IconShield, IconStar, IconWrench, IconHeart,
+  IconMail, IconPlay, IconQR, IconReceipt, IconShield, IconStar, IconWrench, IconHeart,
 } from "../../components/ui/Icons";
 
 type Item = { to: string; key: StringKey; Icon: typeof IconAlert; staff?: boolean };
@@ -13,6 +13,7 @@ const ITEMS: Item[] = [
   { to: "/admin/urgent", key: "admin.nav.urgent", Icon: IconAlert, staff: true },
   { to: "/admin/issues", key: "admin.nav.issues", Icon: IconList },
   { to: "/admin/map", key: "admin.nav.map", Icon: IconPin, staff: true },
+  { to: "/admin/scan", key: "admin.nav.scan", Icon: IconQR, staff: true },
   { to: "/admin/publish", key: "admin.nav.publish", Icon: IconMegaphone },
   { to: "/admin/events", key: "admin.nav.events", Icon: IconCalendar },
   { to: "/admin/newsletter", key: "admin.nav.newsletter", Icon: IconMail },
