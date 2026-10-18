@@ -28,9 +28,9 @@ function qrVideo(text, file) {
   const step = async (name, fn) => { try { await fn(); } catch (e) { out(`FAIL ${name}`, e.message.split('\n')[0]); } };
   const plain = await chromium.launch();
   const login = async (browser, email, staff, opts = {}) => {
-    const c = await browser.newContext({ viewport: { width: 400, height: 860 }, ...opts }); const p = await c.newPage();
+    const path = opts.path; const c = await browser.newContext({ viewport: { width: 400, height: 860 }, ...opts, path: undefined }); const p = await c.newPage();
     p.on('pageerror', (e) => errs.push(`${email}: ${e.message}`));
-    await p.goto(base + (staff ? '/admin/login' : '/login/owner'));
+    await p.goto(base + (staff ? '/admin/login' : (path || '/login/owner')));
     await p.fill('input[type=email]', email); await p.fill('input[type=password]', 'JiranDemo2026!');
     await p.keyboard.press('Enter'); await p.waitForTimeout(5000); return p;
   };
@@ -114,9 +114,7 @@ function qrVideo(text, file) {
     await B.getByLabel('Car plate').fill('vba 2026'); await B.getByRole('button', { name: 'Add car' }).click(); await B.waitForTimeout(1500);
     out('plates', (await B.locator('.list').innerText()).slice(0, 80));
     await B.getByRole('button', { name: 'Remove VBA 2026' }).click(); await B.waitForTimeout(1200);
-    const N = await login(plain, 'nasilemak@jiran.example.com'.replace('owner', ''), false);
-    await N.goto(base + '/login/sub-owner'); // sub-owner uses its own login screen
-    await N.fill('input[type=email]', 'nasilemak@jiran.example.com'); await N.fill('input[type=password]', 'JiranDemo2026!'); await N.keyboard.press('Enter'); await N.waitForTimeout(5000);
+    const N = await login(plain, 'nasilemak@jiran.example.com', false, { path: '/login/sub-owner' });
     await N.goto(base + '/app/billing'); await N.waitForTimeout(2000);
     out('sub-owner billing', (await N.locator('.banner').allInnerTexts()).join(' | '));
   });
