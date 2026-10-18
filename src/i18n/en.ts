@@ -1057,6 +1057,8 @@ export const en = {
   "props.where": "Where it is",
   "props.approx": "Pin shows the Elmina Ridge neighbourhood; the exact site may differ.",
   "props.photos": "Photos, floor plans and full details are on the official page.",
+  "props.photosMore": "More photos, floor plans and full details are on the official page.",
+  "props.impression": "Artist's impression",
   "props.backAll": "See all properties",
   "enq.title": "I am interested, I want to know more",
   "enq.lead": "Leave your details and the Sime Darby Property team will contact you.",

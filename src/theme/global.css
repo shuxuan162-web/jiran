@@ -568,3 +568,13 @@ button.list-row { width: 100%; border: 0; background: var(--color-white); font: 
 .scroll-row .chip-btn { flex: none; }
 .store-list { list-style: none; padding: 0; margin: 0; }
 .store-lot { flex: none; min-width: 72px; font-family: var(--font-heading); font-weight: 800; font-size: .8125rem; color: #26455A; background: #E7EEF3; border-radius: var(--radius-sm); padding: 6px 8px; text-align: center; }
+
+/* Property covers with the official artist's impressions (like the official site's cards) */
+.prop-cover.has-image { background-size: cover; background-position: center; min-height: 230px; align-items: center; text-align: center; padding-bottom: 12px; }
+.prop-cover.has-image.big { min-height: 260px; }
+.prop-cover.has-image .prop-cover-name { position: absolute; top: 12px; left: 14px; text-align: left; font-size: 1.25rem; letter-spacing: .06em; text-transform: uppercase; text-shadow: 0 1px 6px rgba(0,0,0,.5); max-width: 70%; }
+.prop-cover.has-image .prop-cover-lines { text-shadow: 0 1px 4px rgba(0,0,0,.6); }
+.prop-cover.has-image .prop-cover-lines span:first-child { font-size: 1.25rem; font-weight: 800; }
+.prop-cover-kind { position: absolute; top: 10px; right: 12px; font-size: 1.5rem; filter: drop-shadow(0 1px 3px rgba(0,0,0,.5)); }
+.prop-cover-note { position: absolute; left: 14px; top: 40px; font-size: 10px; font-weight: 700; opacity: .8; }
+.prop-panel { grid-template-columns: 1fr; }

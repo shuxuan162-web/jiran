@@ -18,11 +18,15 @@ const KINDS: PropertyKind[] = ["residential", "commercial", "industrial"];
 const KIND_ICON: Record<PropertyKind, string> = { residential: "🏡", commercial: "🏬", industrial: "🏭" };
 
 function PropertyCover({ p, big = false }: { p: Property; big?: boolean }) {
+  const { t } = useI18n();
   return (
-    <div className={`prop-cover kind-${p.kind}${big ? " big" : ""}`}>
-      <span className="prop-cover-icon" aria-hidden="true">{KIND_ICON[p.kind]}</span>
+    <div className={`prop-cover kind-${p.kind}${big ? " big" : ""} has-image`}
+      style={{ backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 45%, rgba(0,0,0,0.78) 100%), url(${p.image})` }}
+      role="img" aria-label={`${p.name}, ${t("props.impression")}`}>
+      <span className="prop-cover-kind" aria-hidden="true">{KIND_ICON[p.kind]}</span>
       <span className="prop-cover-name">{p.name}</span>
       <span className="prop-cover-lines">{p.lines.map((l) => <span key={l}>{l}</span>)}</span>
+      <span className="prop-cover-note">{t("props.impression")}</span>
     </div>
   );
 }
@@ -177,7 +181,7 @@ export function PropertyDetail() {
         center={center} zoom={15} />
       {p.approximate && <p className="small muted">{t("props.approx")}</p>}
       <OrganicMapsLink lat={p.lat} lng={p.lng} name={p.name} type="vehicle" />
-      <p className="small muted">{t("props.photos")} <Link to="/app/properties">{t("props.backAll")}</Link></p>
+      <p className="small muted">{t("props.photosMore")} <Link to="/app/properties">{t("props.backAll")}</Link></p>
     </main>
   );
 }
