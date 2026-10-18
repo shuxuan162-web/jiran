@@ -16,9 +16,14 @@ import Mall from "../screens/resident/showroom/Mall";
 import Properties, { PropertyDetail } from "../screens/resident/showroom/Properties";
 import Content from "../screens/admin/Content";
 import ScanQr from "../screens/resident/services/ScanQr";
-import Services, { ServiceRequests, VisitorPasses } from "../screens/resident/services/Services";
-import { Billing, CarPlates, Faq, Feedback, Help } from "../screens/resident/services/Extras";
-import { AdminScan, FeedbackAdmin, ServicesAdmin } from "../screens/admin/ServicesAdmin";
+import Services, { VisitorPasses } from "../screens/resident/services/Services";
+import { ServiceRequestDetail, ServiceRequests } from "../screens/resident/services/Requests";
+import Billing from "../screens/resident/services/Billing";
+import { SurveyAnswer } from "../screens/resident/services/Surveys";
+import { CarPlates, Faq, Feedback, Help } from "../screens/resident/services/Extras";
+import { AdminScan, ServicesAdmin } from "../screens/admin/ServicesAdmin";
+import BillingAdmin from "../screens/admin/BillingAdmin";
+import SurveysFaqAdmin from "../screens/admin/SurveysFaqAdmin";
 import ProfileTab from "../screens/resident/ProfileTab";
 import SubOwners from "../screens/resident/SubOwners";
 import Settings from "../screens/resident/Settings";
@@ -143,6 +148,8 @@ export default function App() {
               <Route path="scan" element={<ScanQr />} />
               <Route path="services" element={<Services />} />
               <Route path="services/requests" element={<ServiceRequests />} />
+              <Route path="services/requests/:id" element={<ServiceRequestDetail />} />
+              <Route path="surveys/:id" element={<SurveyAnswer />} />
               <Route path="services/visitors" element={<VisitorPasses />} />
               <Route path="faq" element={<Faq />} />
               <Route path="feedback" element={<Feedback />} />
@@ -192,7 +199,8 @@ export default function App() {
               <Route path="content" element={<StaffGate managementOnly><Content /></StaffGate>} />
               <Route path="scan" element={<AdminScan />} />
               <Route path="services" element={<StaffGate managementOnly><ServicesAdmin /></StaffGate>} />
-              <Route path="surveys" element={<StaffGate managementOnly><FeedbackAdmin /></StaffGate>} />
+              <Route path="surveys" element={<StaffGate managementOnly><SurveysFaqAdmin /></StaffGate>} />
+              <Route path="billing" element={<StaffGate managementOnly><BillingAdmin /></StaffGate>} />
               <Route path="*" element={<Navigate to="/admin" replace />} />
             </Route>
 

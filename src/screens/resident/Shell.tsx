@@ -1,4 +1,7 @@
+import { useEffect } from "react";
 import { NavLink, Outlet } from "react-router-dom";
+import { useAuth } from "../../features/auth/AuthProvider";
+import { billRemindersTick } from "../../features/billing/api";
 import { useI18n } from "../../i18n";
 import { IconBag, IconHouse, IconMegaphone, IconPerson, IconPin } from "../../components/ui/Icons";
 import XpToaster from "../../components/XpToaster";
@@ -6,6 +9,9 @@ import XpToaster from "../../components/XpToaster";
 /** Resident app frame: content + the fixed 5-tab bottom bar (Map in the centre). */
 export default function Shell() {
   const { t } = useI18n();
+  const { profile } = useAuth();
+  // Billing reminders are worked out when an owner opens the app (no background job needed for in-app notices)
+  useEffect(() => { if (profile?.role === "owner") billRemindersTick().catch(() => {}); }, [profile?.role]);
   const tab = (to: string, label: string, Icon: typeof IconHouse) => (
     <NavLink to={to} className={({ isActive }) => (isActive ? "active" : "")}>
       <Icon /><span>{label}</span>

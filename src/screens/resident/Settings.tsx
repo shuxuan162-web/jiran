@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { myNotifPrefs, setNotifPref, type NotifPrefs } from "../../features/billing/api";
 import { useAuth } from "../../features/auth/AuthProvider";
 import { useI18n } from "../../i18n";
 import { applyDisplayPrefs, readPref, writePref, type TextScale } from "../../lib/prefs";
@@ -16,6 +17,15 @@ export default function Settings() {
   const [scale, setScale] = useState<TextScale>(((readPref("textScale") as TextScale) || "normal"));
   const [motion, setMotion] = useState(readPref("reduceMotion") === "1");
 
+  const [prefs, setPrefs] = useState<NotifPrefs | null>(null);
+  const [prefErr, setPrefErr] = useState<string | null>(null);
+  useEffect(() => { if (profile) myNotifPrefs(profile.id).then(setPrefs).catch(() => setPrefs({ billing: true, service_requests: true })); }, [profile]);
+  async function changePref(cat: "billing" | "service", on: boolean) {
+    setPrefErr(null);
+    const key = cat === "billing" ? "billing" : "service_requests";
+    setPrefs((p) => (p ? { ...p, [key]: on } : p));
+    try { await setNotifPref(cat, on); } catch (e) { setPrefErr(t(errorKey(e))); setPrefs((p) => (p ? { ...p, [key]: !on } : p)); }
+  }
   async function changePrivacy(p: { map_visibility?: "precinct" | "hidden"; ghost_mode?: boolean }) {
     if (!profile) return;
     setPrivErr(null);
@@ -46,6 +56,22 @@ export default function Settings() {
       </section>
 
       <AreaFollows />
+
+      <section className="card">
+        <h2 style={{ fontSize: "1.125rem", margin: "0 0 4px" }}>{t("settings.notifs")}</h2>
+        <p className="muted" style={{ fontSize: "1rem", marginTop: 0 }}>{t("settings.notifsLead")}</p>
+        {profile?.role === "owner" && (
+          <label className="row" style={{ cursor: "pointer", minHeight: 48 }}>
+            <span className="grow"><strong>{t("settings.notifBilling")}</strong><span className="muted" style={{ display: "block" }}>{t("settings.notifBillingHint")}</span></span>
+            <input type="checkbox" disabled={!prefs} checked={prefs?.billing ?? true} onChange={(e) => changePref("billing", e.target.checked)} style={{ width: 28, height: 28 }} />
+          </label>
+        )}
+        <label className="row" style={{ cursor: "pointer", minHeight: 48, marginTop: 8 }}>
+          <span className="grow"><strong>{t("settings.notifService")}</strong><span className="muted" style={{ display: "block" }}>{t("settings.notifServiceHint")}</span></span>
+          <input type="checkbox" disabled={!prefs} checked={prefs?.service_requests ?? true} onChange={(e) => changePref("service", e.target.checked)} style={{ width: 28, height: 28 }} />
+        </label>
+        {prefErr && <Banner kind="error">{prefErr}</Banner>}
+      </section>
 
       <section className="card">
         <fieldset style={{ border: 0, padding: 0, margin: 0 }}>

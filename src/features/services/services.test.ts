@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { billState, normalizePlate, plateOk } from "./api";
-import { FAQS, searchFaq } from "../../data/faq";
+import { normalizePlate, plateOk } from "./api";
+import { searchFaq } from "../../data/faq";
+import faqSql from "../../../supabase/migrations/0012_surveys_faq.sql?raw";
 
 describe("car plates", () => {
   it("normalises spacing and case", () => {
@@ -14,25 +15,20 @@ describe("car plates", () => {
   });
 });
 
-describe("billing reminders", () => {
-  const today = new Date("2026-10-18T10:00:00+08:00");
-  it("labels each bill by its due date", () => {
-    expect(billState({ due_date: "2026-10-10", paid_at: null }, today)).toBe("overdue");
-    expect(billState({ due_date: "2026-10-25", paid_at: null }, today)).toBe("due_soon");
-    expect(billState({ due_date: "2026-12-30", paid_at: null }, today)).toBe("upcoming");
-    expect(billState({ due_date: "2026-10-10", paid_at: "2026-10-01" }, today)).toBe("paid");
-  });
-});
+// The FAQ rows the migration starts with (same text residents saw before the FAQ moved to the database)
+const seeded = [...faqSql.matchAll(/\(\$q\$([a-z-]+)\$q\$, \$q\$[a-z]+\$q\$, \$q\$(.*?)\$q\$, \$q\$(.*?)\$q\$, .*?array\[(.*?)\]::text\[\]/g)]
+  .map((m) => ({ id: m[1], question: m[2], answer: m[3], keywords: [...m[4].matchAll(/\$q\$(.*?)\$q\$/g)].map((k) => k[1]) }));
 
 describe("FAQ helper", () => {
+  it("starts with the 14 existing questions", () => { expect(seeded).toHaveLength(14); });
   it("finds the visitor answer from a casual question", () => {
-    expect(searchFaq("how to register my guest?")[0].id).toBe("visitor");
+    expect(searchFaq(seeded, "how to register my guest?")[0].id).toBe("visitor");
   });
   it("finds contact numbers", () => {
-    expect(searchFaq("what is the hotline number")[0].id).toBe("contact");
+    expect(searchFaq(seeded, "what is the hotline number")[0].id).toBe("contact");
   });
   it("returns everything for an empty search and nothing for nonsense", () => {
-    expect(searchFaq("")).toHaveLength(FAQS.length);
-    expect(searchFaq("zzqx")).toHaveLength(0);
+    expect(searchFaq(seeded, "")).toHaveLength(seeded.length);
+    expect(searchFaq(seeded, "zzqx")).toHaveLength(0);
   });
 });

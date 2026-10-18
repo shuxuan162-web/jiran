@@ -1,14 +1,16 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../../features/auth/AuthProvider";
 import {
-  FEEDBACK_TOPICS, addPlate, billState, myBills, myPlates, normalizePlate, plateOk, removePlate, sendFeedback,
-  type Bill, type CarPlate, type FeedbackTopic,
+  FEEDBACK_TOPICS, addPlate, myPlates, normalizePlate, plateOk, removePlate, sendFeedback,
+  type CarPlate, type FeedbackTopic,
 } from "../../../features/services/api";
-import { FAQS, searchFaq } from "../../../data/faq";
+import { searchFaq } from "../../../data/faq";
+import { loadFaqs, type FaqRow } from "../../../features/surveys/api";
+import { LoadError } from "../../../components/Status";
+import { OpenSurveys } from "./Surveys";
 import { useI18n, type StringKey } from "../../../i18n";
 import { errorKey } from "../../../lib/errors";
-import { readPref, writePref } from "../../../lib/prefs";
 import { useTitle } from "../../../lib/useTitle";
 import { Banner, Field, Spinner, TopBar } from "../../../components/ui/parts";
 import { IconCar, IconX } from "../../../components/ui/Icons";
@@ -19,36 +21,44 @@ export function Faq() {
   useTitle(t("faq.title"));
   const [q, setQ] = useState("");
   const [open, setOpen] = useState<string | null>(null);
-  const results = useMemo(() => searchFaq(q), [q]);
+  const [items, setItems] = useState<FaqRow[] | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  const load = useCallback(() => { setErr(null); loadFaqs().then((r) => setItems(r.filter((x) => x.active))).catch((e) => setErr(t(errorKey(e)))); }, [t]);
+  useEffect(() => { load(); }, [load]);
+  const results = useMemo(() => (items ? searchFaq(items.map((f) => ({ ...f, id: f.id })), q) : []), [items, q]);
   return (
     <main className="screen">
       <TopBar title={t("faq.title")} back />
       <input className="input" type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("faq.search")} aria-label={t("faq.search")} />
-      {q && results.length > 0 && <p className="small muted">{t("faq.best", { n: results.length })}</p>}
-      {results.length === 0 ? (
-        <section className="card" style={{ marginTop: 12 }}>
-          <strong>{t("faq.noMatch")}</strong>
-          <p className="small">{t("faq.noMatchLead")}</p>
-          <a className="btn btn-primary btn-small" href="tel:+1800881118">1-800-88-1118</a>
-        </section>
-      ) : (
-        <div className="list faq-list" style={{ marginTop: 12 }}>
-          {results.map((f) => (
-            <div key={f.id} className="faq-item">
-              <button className="faq-q" aria-expanded={open === f.id} onClick={() => setOpen(open === f.id ? null : f.id)}>
-                <span className="grow">{f.q}</span><span aria-hidden="true">{open === f.id ? "−" : "+"}</span>
-              </button>
-              {open === f.id && (
-                <div className="faq-a">
-                  <p>{f.a}</p>
-                  {f.link && <Link to={f.link.to} className="btn btn-ghost btn-small">{f.link.label}</Link>}
+      {err ? <div style={{ marginTop: 12 }}><LoadError text={err} onRetry={load} /></div> : !items ? <Spinner label={t("common.loading")} /> : (
+        <>
+          {q && results.length > 0 && <p className="small muted" aria-live="polite">{t("faq.best", { n: results.length })}</p>}
+          {results.length === 0 ? (
+            <section className="card" style={{ marginTop: 12 }}>
+              <strong>{t("faq.noMatch")}</strong>
+              <p className="small">{t("faq.noMatchLead")}</p>
+              <a className="btn btn-primary btn-small" href="tel:+1800881118">1-800-88-1118</a>
+            </section>
+          ) : (
+            <div className="list faq-list" style={{ marginTop: 12 }}>
+              {results.map((f) => (
+                <div key={f.id} className="faq-item">
+                  <button className="faq-q" aria-expanded={open === f.id} onClick={() => setOpen(open === f.id ? null : f.id)}>
+                    <span className="grow">{f.question}</span><span aria-hidden="true">{open === f.id ? "−" : "+"}</span>
+                  </button>
+                  {open === f.id && (
+                    <div className="faq-a">
+                      <p style={{ whiteSpace: "pre-wrap" }}>{f.answer}</p>
+                      {f.link_to && f.link_label && <Link to={f.link_to} className="btn btn-ghost btn-small">{f.link_label}</Link>}
+                    </div>
+                  )}
                 </div>
-              )}
+              ))}
             </div>
-          ))}
-        </div>
+          )}
+          <p className="small muted" style={{ marginTop: 12 }}>{t("faq.count", { n: items.length })}</p>
+        </>
       )}
-      <p className="small muted" style={{ marginTop: 12 }}>{t("faq.count", { n: FAQS.length })}</p>
     </main>
   );
 }
@@ -73,6 +83,7 @@ export function Feedback() {
   return (
     <main className="screen">
       <TopBar title={t("fb.title")} back />
+      <OpenSurveys />
       {done ? (
         <section className="card pop-in">
           <Banner kind="success">{t("fb.thanks")}</Banner>
@@ -112,57 +123,6 @@ export function Feedback() {
   );
 }
 
-const BILL_ICON = { paid: "✓", overdue: "!", due_soon: "⏰", upcoming: "•" } as const;
-
-/** Billing reminders: owners only (the database returns nothing to sub-owners), view only, no payment. */
-export function Billing() {
-  const { t } = useI18n();
-  const { profile } = useAuth();
-  useTitle(t("bill.title"));
-  const [bills, setBills] = useState<Bill[] | null>(null);
-  const [remind, setRemind] = useState(readPref("billRemind") !== "0");
-  useEffect(() => { myBills().then(setBills).catch(() => setBills([])); }, []);
-  if (profile?.role !== "owner") return <main className="screen"><TopBar title={t("bill.title")} back /><Banner kind="info">{t("bill.ownerOnly")}</Banner></main>;
-  const open = (bills ?? []).filter((b) => !b.paid_at);
-  const total = open.reduce((s, b) => s + b.amount, 0);
-  const money = (n: number) => `RM ${n.toLocaleString("en-MY", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  return (
-    <main className="screen">
-      <TopBar title={t("bill.title")} back />
-      {bills?.some((b) => b.is_demo) && <Banner kind="warn">{t("bill.demo")}</Banner>}
-      {!bills ? <Spinner /> : (
-        <>
-          <section className="card" style={{ marginTop: 12 }}>
-            <span className="small muted">{t("bill.outstanding")}</span>
-            <div className="stat-value" style={{ fontSize: "2rem" }}>{money(total)}</div>
-            <span className="small">{t("bill.openN", { n: open.length })}</span>
-          </section>
-          {bills.length === 0 ? <div className="card muted">{t("bill.none")}</div> : bills.map((b) => {
-            const s = billState(b);
-            return (
-              <section key={b.id} className={`card bill bill-${s}`}>
-                <div className="row" style={{ gap: 10 }}>
-                  <span className="bill-icon" aria-hidden="true">{BILL_ICON[s]}</span>
-                  <span className="grow"><strong style={{ display: "block" }}>{t(`bill.kind.${b.kind}` as StringKey)}</strong><span className="small muted">{b.period}</span></span>
-                  <strong>{money(b.amount)}</strong>
-                </div>
-                <p className="small" style={{ margin: "8px 0 0" }}>
-                  <span className={`chip ${s === "paid" ? "green" : s === "overdue" ? "red" : s === "due_soon" ? "lvl-medium" : ""}`}>{t(`bill.state.${s}` as StringKey)}</span>{" "}
-                  {b.paid_at ? t("bill.paidOn", { date: new Date(b.paid_at).toLocaleDateString() }) : t("bill.dueOn", { date: new Date(b.due_date).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) })}
-                </p>
-              </section>
-            );
-          })}
-          <label className="row card" style={{ cursor: "pointer", minHeight: 48 }}>
-            <span className="grow"><strong>{t("bill.remind")}</strong><span className="small muted" style={{ display: "block" }}>{t("bill.remindHint")}</span></span>
-            <input type="checkbox" checked={remind} onChange={(e) => { setRemind(e.target.checked); writePref("billRemind", e.target.checked ? "1" : "0"); }} style={{ width: 28, height: 28 }} />
-          </label>
-          <p className="small muted">{t("bill.noPay")}</p>
-        </>
-      )}
-    </main>
-  );
-}
 
 /** Car plates: up to 5, own rows only. */
 export function CarPlates() {
