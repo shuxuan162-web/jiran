@@ -17,7 +17,7 @@ The residents' app for City of Elmina by Sime Darby Property, built for the **SD
 | 3 | Live map (Google Maps with OpenStreetMap fallback, Organic Maps links), SOS and emergencies, urgent queue, ordering view | **Live** |
 | 4 | Announcements and maintenance notices (area targeting, scheduling), notification centre, township feed with moderation, events with RSVP and check-in, weekly newsletter, analytics-lite | **Live** |
 | 5 | XP ledger (database-only), levels, badges, weekly quests, township goal, leaderboard with opt-out, character editor with level-locked cosmetics; support numbers on Residence | **Live** |
-| 6 | Services, mall, properties (lite) | |
+| 6 | Properties (official City of Elmina listings, viewing/enquiry form, admin enquiries), Elmina Lakeside Mall directory, township facts and Places map layer. Services, FAQ, billing, QR remain "Coming soon" | **Live** |
 
 ## Architecture
 
