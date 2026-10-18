@@ -1,4 +1,4 @@
-// English strings. Every resident-facing word lives here (BM in bm.ts).
+// English strings. Every resident-facing word lives here (English is the only language for now).
 export const en = {
   "app.name": "Jiran",
   "app.township": "City of Elmina",
@@ -173,8 +173,6 @@ export const en = {
   "emails.open": "Open link",
 
   "settings.title": "Settings",
-  "settings.language": "Language",
-  "settings.bmNote": "Bahasa Melayu is a draft and needs review by a native speaker.",
   "settings.textSize": "Text size",
   "settings.textNormal": "A",
   "settings.textLarge": "A+",
@@ -202,7 +200,6 @@ export const en = {
   "admin.nav.surveys": "Resident feedback",
   "admin.nav.content": "Property enquiries",
   "admin.nav.health": "Health",
-  "admin.nav.demo": "Demo controls",
   "admin.signOut": "Sign out",
   "admin.ver.title": "Ownership verifications",
   "admin.ver.pending": "Waiting",
@@ -1174,8 +1171,6 @@ export const en = {
   "svc.visitors": "Visitor passes",
   "svc.visitorsSub": "Register a guest and share a QR for the guardhouse",
   "svc.scanSub": "Check in at events",
-  "svc.facilities": "Book facilities",
-  "svc.facilitiesSub": "Coming soon",
   "svc.newPass": "New visitor pass",
   "svc.visitorName": "Visitor's name",
   "svc.plate": "Car plate",

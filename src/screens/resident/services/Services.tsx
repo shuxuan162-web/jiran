@@ -13,7 +13,7 @@ import { useTitle } from "../../../lib/useTitle";
 import { fileProblem } from "../../../lib/validation";
 import QrImage from "../../../components/QrImage";
 import { Banner, Field, Spinner, TopBar } from "../../../components/ui/parts";
-import { IconCalendar, IconChevron, IconQR, IconUpload, IconUsers, IconWrench, IconX } from "../../../components/ui/Icons";
+import { IconChevron, IconQR, IconUpload, IconUsers, IconWrench, IconX } from "../../../components/ui/Icons";
 
 const myt = () => new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
 const addDays = (iso: string, n: number) => new Date(Date.parse(`${iso}T00:00:00Z`) + n * 86400000).toISOString().slice(0, 10);
@@ -37,7 +37,6 @@ export default function Services() {
         {row("/app/services/requests", "svc.requests", "svc.requestsSub", IconWrench, "var(--color-tint-blue)")}
         {row("/app/services/visitors", "svc.visitors", "svc.visitorsSub", IconUsers, "var(--color-tint-green)")}
         {row("/app/scan", "qr.title", "svc.scanSub", IconQR, "var(--color-tint-orange)")}
-        {row("/app/soon/facilities", "svc.facilities", "svc.facilitiesSub", IconCalendar, "var(--color-tint-amber)")}
       </div>
     </main>
   );

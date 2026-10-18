@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
-import { BrowserRouter, Navigate, Route, Routes, useParams } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AuthProvider, isStaff, useAuth } from "../features/auth/AuthProvider";
-import { I18nProvider, useI18n, type StringKey } from "../i18n";
+import { I18nProvider, useI18n } from "../i18n";
 import { configMissing } from "../config/env";
-import { Banner, ComingSoon, DemoBanner, Splash } from "../components/ui/parts";
+import { Banner, DemoBanner, Splash } from "../components/ui/parts";
 import Login from "../screens/auth/Login";
 import SignIn from "../screens/auth/SignIn";
 import CreateAccount from "../screens/auth/CreateAccount";
@@ -103,13 +103,6 @@ function AccessEnded() {
   );
 }
 
-function AdminSoon() {
-  const { section = "" } = useParams();
-  const { t } = useI18n();
-  const key = `admin.nav.${section}` as StringKey;
-  return <div style={{ maxWidth: 560 }}><ComingSoon feature={t(key) === key ? section : t(key)} /></div>;
-}
-
 function ConfigMissing() {
   return (
     <main className="screen no-nav">
@@ -200,7 +193,7 @@ export default function App() {
               <Route path="scan" element={<AdminScan />} />
               <Route path="services" element={<StaffGate managementOnly><ServicesAdmin /></StaffGate>} />
               <Route path="surveys" element={<StaffGate managementOnly><FeedbackAdmin /></StaffGate>} />
-              <Route path=":section" element={<AdminSoon />} />
+              <Route path="*" element={<Navigate to="/admin" replace />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />

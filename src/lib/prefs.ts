@@ -1,4 +1,4 @@
-// Per-device conveniences only (language, text size, motion). Storage may be
+// Per-device conveniences only (text size, motion; "lang" is kept only to clear an old choice). Storage may be
 // unavailable (private mode, blocked site data), so every access is guarded.
 const PREFIX = "jiran.";
 

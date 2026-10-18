@@ -13,7 +13,7 @@ export interface Profile {
   home_area_id: string | null;
   map_visibility: "unset" | "precinct" | "hidden";
   ghost_mode: boolean;
-  language: "en" | "bm";
+  language: string; // always "en" now; older rows are treated as English
 }
 
 export interface PrivateProfile {

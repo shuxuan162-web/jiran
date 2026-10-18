@@ -4,7 +4,7 @@ import { useI18n, type StringKey } from "../../i18n";
 import { DemoBanner } from "../../components/ui/parts";
 import {
   IconAlert, IconCalendar, IconChart, IconClipboard, IconHelp, IconList, IconLogout, IconMegaphone, IconPin,
-  IconMail, IconPlay, IconQR, IconReceipt, IconShield, IconStar, IconWrench, IconHeart,
+  IconMail, IconQR, IconReceipt, IconShield, IconStar, IconWrench, IconHeart,
 } from "../../components/ui/Icons";
 
 type Item = { to: string; key: StringKey; Icon: typeof IconAlert; staff?: boolean };
@@ -25,7 +25,6 @@ const ITEMS: Item[] = [
   { to: "/admin/surveys", key: "admin.nav.surveys", Icon: IconHelp },
   { to: "/admin/content", key: "admin.nav.content", Icon: IconStar },
   { to: "/admin/health", key: "admin.nav.health", Icon: IconHeart, staff: true },
-  { to: "/admin/demo", key: "admin.nav.demo", Icon: IconPlay },
 ];
 
 export default function AdminShell() {

@@ -66,7 +66,7 @@ npm run ci                   # tests + type check + production build (what Verce
 
 - **Restyle:** every colour, font, size, radius, spacing and shadow is in `src/theme/tokens.ts`. Change values there; components read them as CSS variables.
 - **Components:** thin, presentational pieces are in `src/components/ui/`. Data and logic live in `src/features/` and `src/lib/`, so a component can be swapped without touching behaviour.
-- **Words:** every resident-facing string is in `src/i18n/en.ts` (BM draft in `bm.ts`, marked for native review).
+- **Words:** English only. Every resident-facing string is in `src/i18n/en.ts`; `src/i18n/index.tsx` keeps a locale map so another language can be added later (a stored old "bm" choice falls back to English).
 - **Avatar art:** placeholder initials today; layered SVG parts go in `assets/avatar/` with a manifest in phase 5.
 
 ## Repository layout

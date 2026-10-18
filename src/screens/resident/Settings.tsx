@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../features/auth/AuthProvider";
-import { useI18n, type Lang } from "../../i18n";
+import { useI18n } from "../../i18n";
 import { applyDisplayPrefs, readPref, writePref, type TextScale } from "../../lib/prefs";
 import { useTitle } from "../../lib/useTitle";
 import { Banner, TopBar } from "../../components/ui/parts";
@@ -10,17 +9,13 @@ import { errorKey } from "../../lib/errors";
 import AreaFollows from "./info/AreaFollows";
 
 export default function Settings() {
-  const { t, lang, setLang } = useI18n();
+  const { t } = useI18n();
   const { profile, refresh } = useAuth();
   const [privErr, setPrivErr] = useState<string | null>(null);
   useTitle(t("settings.title"));
   const [scale, setScale] = useState<TextScale>(((readPref("textScale") as TextScale) || "normal"));
   const [motion, setMotion] = useState(readPref("reduceMotion") === "1");
 
-  function chooseLang(l: Lang) {
-    setLang(l);
-    if (profile) void supabase.from("profiles").update({ language: l }).eq("id", profile.id);
-  }
   async function changePrivacy(p: { map_visibility?: "precinct" | "hidden"; ghost_mode?: boolean }) {
     if (!profile) return;
     setPrivErr(null);
@@ -32,19 +27,6 @@ export default function Settings() {
   return (
     <main className="screen">
       <TopBar title={t("settings.title")} back="/app/profile" />
-      <section className="card">
-        <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
-          <legend style={{ fontWeight: 800, marginBottom: 8 }}>{t("settings.language")}</legend>
-          <div className="segmented">
-            {(["en", "bm"] as const).map((l) => (
-              <label key={l}><input type="radio" name="lang" checked={lang === l} onChange={() => chooseLang(l)} />
-                <span>{l === "en" ? "English" : "Bahasa Melayu"}</span></label>
-            ))}
-          </div>
-        </fieldset>
-        {lang === "bm" && <div style={{ marginTop: 12 }}><Banner kind="warn">{t("settings.bmNote")}</Banner></div>}
-      </section>
-
       <section className="card">
         <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
           <legend style={{ fontWeight: 800, marginBottom: 4 }}>{t("settings.mapPrivacy")}</legend>
