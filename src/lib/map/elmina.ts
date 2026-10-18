@@ -1,7 +1,7 @@
 // City of Elmina map frame. Positions and area outlines are approximate (areas.verified = false)
 // until a teammate checks them against the SDP masterplan.
 export const ELMINA_CENTER: [number, number] = [3.18, 101.5];
-export const ELMINA_BOUNDS: [[number, number], [number, number]] = [[3.13, 101.46], [3.225, 101.535]];
+export const ELMINA_BOUNDS: [[number, number], [number, number]] = [[3.13, 101.46], [3.232, 101.535]];
 export const DEFAULT_ZOOM = 14;
 
 // Map provider: Leaflet (leafletjs.com) with CARTO Voyager raster tiles built on OpenStreetMap data.

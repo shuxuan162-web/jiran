@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { LANDMARKS, type Landmark } from "../../data/landmarks";
+import { PROPERTIES } from "../../data/properties";
 import { useAuth } from "../../features/auth/AuthProvider";
 import {
   activeEmergencies, checkIn, checkOut, confirmSos, feedOrdered, loadAreaShapes, mapPresence, setPrivacy,
@@ -23,10 +25,10 @@ import { mapBubbles, type Bubble } from "../../features/info/api";
 import { timeAgo } from "../../lib/info";
 import { avatarSvg, normalizeAvatar } from "../../lib/avatar";
 
-type Layer = "emergencies" | "notices" | "issues" | "events" | "posts" | "neighbours";
-const LAYERS: Layer[] = ["emergencies", "notices", "issues", "events", "posts", "neighbours"];
-const ALL_ON: Record<Layer, boolean> = { emergencies: true, notices: true, issues: true, events: true, posts: true, neighbours: true };
-type Selected = { kind: "emergency"; e: PublicEmergency } | { kind: "issue" | "notice" | "event"; f: FeedItem } | { kind: "post"; b: Bubble } | null;
+type Layer = "emergencies" | "notices" | "issues" | "events" | "posts" | "places" | "neighbours";
+const LAYERS: Layer[] = ["emergencies", "notices", "issues", "events", "posts", "places", "neighbours"];
+const ALL_ON: Record<Layer, boolean> = { emergencies: true, notices: true, issues: true, events: true, posts: true, places: true, neighbours: true };
+type Selected = { kind: "emergency"; e: PublicEmergency } | { kind: "issue" | "notice" | "event"; f: FeedItem } | { kind: "post"; b: Bubble } | { kind: "place"; l: Landmark } | null;
 
 const RING: Record<string, string> = { red: "#D71920", orange: "#F26522", amber: "#FDB515", green: "#1F7A5C", blue: "#2F6FB3" };
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
@@ -62,6 +64,7 @@ export default function MapTab() {
   const [me, setMe] = useState<LivePosition | null>(null);
   const [locErr, setLocErr] = useState(false);
   const [sel, setSel] = useState<Selected>(null);
+  const [params] = useSearchParams();
   const [focus, setFocus] = useState<{ lat: number; lng: number; zoom?: number; key: number } | null>(null);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<{ kind: "success" | "error"; text: string } | null>(null);
@@ -86,6 +89,10 @@ export default function MapTab() {
     return () => { window.clearInterval(a); window.clearInterval(b); void supabase.removeChannel(ch); };
   }, [load, loadPresence]);
   useEffect(() => { writePref("mapLayers", JSON.stringify(layers)); }, [layers]);
+  useEffect(() => {
+    const l = LANDMARKS.find((x) => x.slug === params.get("place"));
+    if (l) { setSel({ kind: "place", l }); setFocus({ lat: l.lat, lng: l.lng, zoom: 16, key: Date.now() }); setLayers((x) => ({ ...x, places: true })); }
+  }, [params]);
 
   const myArea = profile?.home_area_id;
   const shapes = useMemo(() => areas.map((a) => {
@@ -112,6 +119,13 @@ export default function MapTab() {
       out.push({ id: `no-${f.id}`, lat: f.lat, lng: f.lng, html: `<div class="pin pin-notice"><span>${f.status === "safety" ? "⚠" : "🛠"}</span></div>`, z: 5000,
         label: `${t(`notice.cat.${f.status}` as StringKey)}: ${f.title}`, onClick: () => setSel({ kind: "notice", f }) });
     }
+    if (layers.places) {
+      for (const l of LANDMARKS) out.push({ id: `lm-${l.slug}`, lat: l.lat, lng: l.lng, z: 150,
+        html: `<div class="pin pin-place"><span>${l.kind === "mall" ? "🛍" : l.kind === "park" ? "🌳" : "🌿"}</span></div>`,
+        label: l.name, onClick: () => setSel({ kind: "place", l }) });
+      for (const p of PROPERTIES) out.push({ id: `pr-${p.slug}`, lat: p.lat, lng: p.lng, z: 140,
+        html: '<div class="pin pin-prop"><span>🏠</span></div>', label: p.name, onClick: () => nav(`/app/properties/${p.slug}`) });
+    }
     if (layers.posts) for (const b of bubbles) {
       out.push({ id: `po-${b.id}`, lat: b.lat, lng: b.lng, size: [180, 64], z: 200,
         html: `<div class="bubble-pin">${avatarHtml(b.nickname ?? "?", b.avatar, b.is_mine)}<div class="bubble-text">${esc(b.snippet.length > 60 ? b.snippet.slice(0, 57) + "…" : b.snippet)}</div></div>`,
@@ -132,11 +146,12 @@ export default function MapTab() {
         label: `${t(`sosType.${e.type}` as StringKey)}: ${t(`sosStatus.${e.status}` as StringKey)}`, onClick: () => setSel({ kind: "emergency", e }) });
     }
     return out;
-  }, [issues, notices, events, bubbles, sos, presence, layers, t]);
+  }, [issues, notices, events, bubbles, sos, presence, layers, t, nav]);
 
   const toggle = (k: Layer) => setLayers((l) => ({ ...l, [k]: !l[k] }));
   const counts: Record<Layer, number> = {
     emergencies: sos.length, issues: issues.length, notices: notices.length, events: events.length, posts: bubbles.length,
+    places: LANDMARKS.length + PROPERTIES.length,
     neighbours: (presence?.areas.reduce((s, a) => s + a.count, 0) ?? 0),
   };
   const visibility = presence?.me?.map_visibility ?? profile?.map_visibility ?? "unset";
@@ -261,6 +276,16 @@ export default function MapTab() {
                 <button className="btn btn-secondary" disabled={busy} onClick={() => confirm(sel.e)}>{t("map.sosConfirm")}</button>
               )}
               <OrganicMapsLink lat={sel.e.lat} lng={sel.e.lng} name={t(`sosType.${sel.e.type}` as StringKey)} from={me} compact />
+            </>
+          ) : sel.kind === "place" ? (
+            <>
+              <span className="chip green">{t("map.layer.places")}</span>
+              <h2 style={{ fontSize: "1.25rem", margin: "8px 0 4px" }}>{sel.l.name}</h2>
+              <p className="small" style={{ margin: "0 0 6px" }}>{sel.l.blurb}</p>
+              {sel.l.address && <p className="small muted" style={{ margin: "0 0 4px" }}>{sel.l.address}</p>}
+              <p className="small muted" style={{ margin: "0 0 10px" }}>{sel.l.hours ?? t("map.hoursUnknown")}</p>
+              {sel.l.link?.label === "mall" && <button className="btn btn-primary" onClick={() => nav("/app/mall")}>{t("map.openMall")}</button>}
+              <OrganicMapsLink lat={sel.l.lat} lng={sel.l.lng} name={sel.l.name} from={me} compact />
             </>
           ) : sel.kind === "post" ? (
             <>

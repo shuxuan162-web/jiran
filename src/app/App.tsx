@@ -12,7 +12,9 @@ import AcceptInvite from "../screens/auth/AcceptInvite";
 import Shell from "../screens/resident/Shell";
 import MapTab from "../screens/resident/MapTab";
 import ResidenceTab from "../screens/resident/ResidenceTab";
-import { MallTab, PropertiesTab } from "../screens/resident/SimpleTabs";
+import Mall from "../screens/resident/showroom/Mall";
+import Properties, { PropertyDetail } from "../screens/resident/showroom/Properties";
+import Content from "../screens/admin/Content";
 import ProfileTab from "../screens/resident/ProfileTab";
 import SubOwners from "../screens/resident/SubOwners";
 import Settings from "../screens/resident/Settings";
@@ -138,8 +140,9 @@ export default function App() {
               <Route index element={<Navigate to="map" replace />} />
               <Route path="map" element={<MapTab />} />
               <Route path="residence" element={<ResidenceTab />} />
-              <Route path="mall" element={<MallTab />} />
-              <Route path="properties" element={<PropertiesTab />} />
+              <Route path="mall" element={<Mall />} />
+              <Route path="properties" element={<Properties />} />
+              <Route path="properties/:slug" element={<PropertyDetail />} />
               <Route path="profile" element={<ProfileTab />} />
               <Route path="profile/sub-owners" element={<SubOwners />} />
               <Route path="profile/settings" element={<Settings />} />
@@ -180,6 +183,7 @@ export default function App() {
               <Route path="moderation" element={<StaffGate managementOnly><Moderation /></StaffGate>} />
               <Route path="newsletter" element={<StaffGate managementOnly><NewsletterAdmin /></StaffGate>} />
               <Route path="analytics" element={<StaffGate managementOnly><Analytics /></StaffGate>} />
+              <Route path="content" element={<StaffGate managementOnly><Content /></StaffGate>} />
               <Route path=":section" element={<AdminSoon />} />
             </Route>
 

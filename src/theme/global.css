@@ -530,3 +530,41 @@ button.list-row { width: 100%; border: 0; background: var(--color-white); font: 
 .support-number { display: inline-block; color: var(--color-white); font-family: var(--font-heading); font-size: 1.625rem; font-weight: 800; text-decoration: none; min-height: var(--tap-min); line-height: var(--tap-min); }
 .support-number:focus-visible { outline: 3px solid var(--color-white); outline-offset: 2px; }
 .support-card .small { display: block; font-weight: 700; }
+
+/* ---------- Phase 6: properties, enquiries, mall, places ---------- */
+.props-heading { font-size: 1.375rem; text-align: center; margin: 4px 0 14px; line-height: 1.25; }
+.props-heading span { color: var(--color-orange); display: block; }
+.folder-tabs { display: flex; gap: 4px; padding: 0 6px; }
+.folder-tabs button { flex: 1; min-height: var(--tap-min); border: 2px solid var(--color-line); border-bottom: 0; border-radius: 14px 14px 0 0;
+  background: #E9E4DD; font: inherit; font-weight: 800; font-size: .875rem; text-transform: uppercase; letter-spacing: .03em; color: var(--color-ink); cursor: pointer; }
+.folder-tabs button.on { background: var(--color-white); }
+.prop-panel { background: #262B29; border-radius: 0 0 var(--radius-lg) var(--radius-lg); padding: var(--space-lg); display: grid; gap: var(--space-md); }
+.prop-card { display: block; text-decoration: none; color: inherit; border-radius: var(--radius-md); overflow: hidden; border: 2px solid #9CC5B4; background: var(--color-white); }
+.prop-card-foot { display: flex; align-items: center; gap: 4px; padding: 10px 12px; font-weight: 800; font-size: .9375rem; }
+.prop-cover { position: relative; min-height: 150px; padding: 14px; display: flex; flex-direction: column; justify-content: flex-end; color: var(--color-white);
+  background: linear-gradient(160deg, #3C6E8F 0%, #26455A 100%); }
+.prop-cover.kind-commercial { background: linear-gradient(160deg, #8A5300 0%, #4E3510 100%); }
+.prop-cover.kind-industrial { background: linear-gradient(160deg, #3E5C4A 0%, #1F3328 100%); }
+.prop-cover.big { min-height: 190px; border-radius: var(--radius-md); }
+.prop-cover-icon { position: absolute; top: 10px; right: 14px; font-size: 2.25rem; opacity: .9; }
+.prop-cover-name { font-family: var(--font-heading); font-weight: 800; font-size: 1.375rem; letter-spacing: .02em; }
+.prop-cover-lines { display: flex; flex-direction: column; font-weight: 700; font-size: .9375rem; margin-top: 4px; }
+.prop-cover-lines span:first-child { font-size: 1.0625rem; }
+.prop-facts { margin: 4px 0 10px; padding-left: 18px; font-weight: 700; }
+.enquiry-card { margin-top: 16px; border: 2px solid var(--color-tint-orange); }
+.consent a { font-weight: 800; }
+.fact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm); }
+.fact { background: var(--color-white); border-radius: var(--radius-md); box-shadow: var(--shadow-card); padding: 12px; display: flex; flex-direction: column; }
+.fact strong { font-family: var(--font-heading); font-size: 1.5rem; color: var(--color-success); }
+.fact strong span { font-size: .875rem; color: var(--color-muted); }
+.fact > span { font-weight: 700; font-size: .875rem; }
+.pin.pin-place { background: var(--color-success); }
+.pin.pin-prop { background: #26455A; }
+.mall-hero { border-radius: var(--radius-lg); padding: var(--space-lg); color: var(--color-white); background: linear-gradient(135deg, #1F7A5C 0%, #26455A 100%); }
+.mall-hero h2 { color: var(--color-white); font-size: 1.375rem; margin-bottom: 4px; }
+.mall-hero p { margin: 0 0 10px; opacity: .95; font-weight: 600; }
+.mall-pill { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.18); border-radius: var(--radius-pill); padding: 6px 12px; font-weight: 800; font-size: .875rem; }
+.scroll-row { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+.scroll-row .chip-btn { flex: none; }
+.store-list { list-style: none; padding: 0; margin: 0; }
+.store-lot { flex: none; min-width: 72px; font-family: var(--font-heading); font-weight: 800; font-size: .8125rem; color: #26455A; background: #E7EEF3; border-radius: var(--radius-sm); padding: 6px 8px; text-align: center; }
