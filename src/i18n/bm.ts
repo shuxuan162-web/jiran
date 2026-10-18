@@ -130,4 +130,14 @@ export const bm: Partial<Record<StringKey, string>> = {
   "map.layer.events": "Acara",
   "map.layer.posts": "Hantaran",
   "settings.follows": "Kawasan yang saya ikuti",
+  // Phase 5 (draft, needs native review)
+  "rw.title": "Ganjaran",
+  "ce.title": "Watak saya",
+  "rw.quests": "Misi minggu ini",
+  "rw.leaderboard": "Papan pendahulu",
+  "support.title": "Perlukan bantuan? Hubungi Sime Darby Property",
+  "support.tollFree": "Talian bebas tol",
+  "support.hours": "Isnin hingga Jumaat, 8.30 pagi hingga 5.30 petang (kecuali cuti umum)",
+  "support.outside": "Luar Malaysia",
+  "support.note": "Dalam kecemasan, guna SOS atau hubungi 999.",
 };

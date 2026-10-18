@@ -41,6 +41,8 @@ import EventsAdmin from "../screens/admin/EventsAdmin";
 import Moderation from "../screens/admin/Moderation";
 import NewsletterAdmin from "../screens/admin/NewsletterAdmin";
 import Analytics from "../screens/admin/Analytics";
+import Rewards from "../screens/resident/rewards/Rewards";
+import CharacterEditor from "../screens/resident/rewards/CharacterEditor";
 
 /** Sends each person to the right place for who they are and where they are in onboarding. */
 function Home() {
@@ -160,6 +162,8 @@ export default function App() {
               <Route path="events/:id" element={<EventDetail />} />
               <Route path="newsletter" element={<NewsletterReader />} />
               <Route path="newsletter/:id" element={<NewsletterReader />} />
+              <Route path="rewards" element={<Rewards />} />
+              <Route path="profile/character" element={<CharacterEditor />} />
             </Route>
 
             <Route path="/admin/login" element={<ResidentFrame><SignIn mode="staff" /></ResidentFrame>} />

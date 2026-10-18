@@ -5,8 +5,10 @@ import { useAuth } from "../../features/auth/AuthProvider";
 import { useI18n, type StringKey } from "../../i18n";
 import { useTitle } from "../../lib/useTitle";
 import { Avatar, TopBar } from "../../components/ui/parts";
+import { myRewards } from "../../features/rewards/api";
+import { LevelChip } from "./rewards/Rewards";
 import {
-  IconCar, IconChevron, IconHelp, IconList, IconLogout, IconMail, IconSettings, IconTrophy, IconUsers,
+  IconCar, IconChevron, IconHelp, IconList, IconLogout, IconMail, IconPerson, IconSettings, IconTrophy, IconUsers,
 } from "../../components/ui/Icons";
 
 export default function ProfileTab() {
@@ -14,6 +16,8 @@ export default function ProfileTab() {
   const { profile, priv, signOut } = useAuth();
   useTitle(t("profile.title"));
   const [unitLabel, setUnitLabel] = useState<string | null>(null);
+  const [level, setLevel] = useState<number | null>(null);
+  useEffect(() => { myRewards().then((r) => setLevel(r.level)).catch(() => {}); }, []);
 
   useEffect(() => {
     if (!priv?.unit_id) return;
@@ -37,10 +41,15 @@ export default function ProfileTab() {
     <main className="screen">
       <TopBar title={t("profile.title")} />
       <section className="card row" style={{ marginBottom: 16 }}>
-        <Avatar name={profile.nickname} config={profile.avatar_config} size={72} />
+        <Link to="/app/profile/character" aria-label={t("ce.title")} style={{ textDecoration: "none" }}>
+          <Avatar name={profile.nickname} config={profile.avatar_config} size={72} />
+        </Link>
         <div className="grow">
           <div style={{ fontFamily: "var(--font-heading)", fontWeight: 800, fontSize: "1.375rem" }}>{profile.nickname}</div>
-          <span className="chip" style={{ marginTop: 4 }}>{t(`profile.role.${profile.role}` as StringKey)}</span>
+          <span className="row" style={{ gap: 6, flexWrap: "wrap", marginTop: 4 }}>
+            <span className="chip">{t(`profile.role.${profile.role}` as StringKey)}</span>
+            {level != null && <LevelChip level={level} />}
+          </span>
           {unitLabel && (
             <div className="small muted" style={{ marginTop: 6 }}>
               {unitLabel} <span className="sr-only">.</span>
@@ -58,7 +67,8 @@ export default function ProfileTab() {
       <div className="list">
         {isOwner && row("/app/profile/sub-owners", "profile.subOwners", IconUsers, "var(--color-tint-amber)")}
         {row("/app/soon/carplates", "profile.carPlates", IconCar, "var(--color-tint-orange)")}
-        {row("/app/soon/rewards", "profile.rewards", IconTrophy, "var(--color-tint-amber)")}
+        {row("/app/rewards", "profile.rewards", IconTrophy, "var(--color-tint-amber)")}
+        {row("/app/profile/character", "ce.title", IconPerson, "var(--color-tint-red)")}
         {row("/emails", "profile.emails", IconMail, "var(--color-tint-purple)")}
       </div>
 

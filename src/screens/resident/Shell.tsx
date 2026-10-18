@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useI18n } from "../../i18n";
 import { IconBag, IconHouse, IconMegaphone, IconPerson, IconPin } from "../../components/ui/Icons";
+import XpToaster from "../../components/XpToaster";
 
 /** Resident app frame: content + the fixed 5-tab bottom bar (Map in the centre). */
 export default function Shell() {
@@ -13,6 +14,7 @@ export default function Shell() {
   return (
     <>
       <Outlet />
+      <XpToaster />
       <nav className="bottom-nav" aria-label="Main">
         {tab("/app/residence", t("nav.residence"), IconMegaphone)}
         {tab("/app/mall", t("nav.mall"), IconBag)}

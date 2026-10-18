@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { moderate, moderationQueue, warnUser, type ModItem } from "../../features/info/api";
+import { revokeXp } from "../../features/rewards/api";
 import { useI18n, type StringKey } from "../../i18n";
 import { errorKey } from "../../lib/errors";
 import { timeAgo } from "../../lib/info";
@@ -26,6 +27,14 @@ export default function Moderation() {
     if (!m.author_id) return;
     if (reason.length < 3) { setMsg({ kind: "error", text: t("admin.m.warnNeedsNote") }); return; }
     try { await warnUser(m.author_id, reason); setMsg({ kind: "success", text: t("admin.m.warned", { name: m.author_nickname ?? "—" }) }); load(); }
+    catch (e) { setMsg({ kind: "error", text: t(errorKey(e)) }); }
+  }
+
+  async function revoke(m: ModItem) {
+    const reason = (notes[m.id] ?? "").trim();
+    if (!m.author_id) return;
+    if (reason.length < 3) { setMsg({ kind: "error", text: t("admin.m.warnNeedsNote") }); return; }
+    try { await revokeXp(m.author_id, 10, reason); setMsg({ kind: "success", text: t("admin.m.revoked", { name: m.author_nickname ?? "—" }) }); }
     catch (e) { setMsg({ kind: "error", text: t(errorKey(e)) }); }
   }
 
@@ -56,6 +65,7 @@ export default function Moderation() {
             {m.state !== "hidden" && <button className="btn btn-danger btn-small" onClick={() => act(m, "hide")}>{t("admin.m.hide")}</button>}
             {m.open_reports > 0 && <button className="btn btn-ghost btn-small" onClick={() => act(m, "dismiss")}>{t("admin.m.dismiss")}</button>}
             {m.author_id && !m.author_warned && <button className="btn btn-ghost btn-small" onClick={() => warn(m)}>{t("admin.m.warn")}</button>}
+            {m.author_id && <button className="btn btn-ghost btn-small" onClick={() => revoke(m)}>{t("admin.m.revoke")}</button>}
           </div>
         </section>
       ))}

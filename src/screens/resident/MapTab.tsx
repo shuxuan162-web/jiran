@@ -21,6 +21,7 @@ import { IconChat, IconPin, IconX } from "../../components/ui/Icons";
 import { feedRowParts } from "../../components/HappeningNow";
 import { mapBubbles, type Bubble } from "../../features/info/api";
 import { timeAgo } from "../../lib/info";
+import { avatarSvg, normalizeAvatar } from "../../lib/avatar";
 
 type Layer = "emergencies" | "notices" | "issues" | "events" | "posts" | "neighbours";
 const LAYERS: Layer[] = ["emergencies", "notices", "issues", "events", "posts", "neighbours"];
@@ -29,9 +30,12 @@ type Selected = { kind: "emergency"; e: PublicEmergency } | { kind: "issue" | "n
 
 const RING: Record<string, string> = { red: "#D71920", orange: "#F26522", amber: "#FDB515", green: "#1F7A5C", blue: "#2F6FB3" };
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
-const avatarHtml = (nickname: string, avatar: Record<string, unknown> | null, me: boolean, label?: string) =>
-  `<div class="map-avatar${me ? " me" : ""}" style="background:${RING[String(avatar?.ring ?? "orange")] ?? RING.orange}">${esc(nickname.slice(0, 1).toUpperCase())}</div>` +
-  (label ? `<div class="map-avatar-name">${esc(label)}</div>` : "");
+const avatarHtml = (nickname: string, avatar: Record<string, unknown> | null, me: boolean, label?: string) => {
+  const c = normalizeAvatar(avatar);
+  const inner = c ? avatarSvg(c, 28) : esc(nickname.slice(0, 1).toUpperCase());
+  return `<div class="map-avatar${me ? " me" : ""}${c ? " has-svg" : ""}" style="background:${RING[String(avatar?.ring ?? "orange")] ?? RING.orange}">${inner}</div>` +
+    (label ? `<div class="map-avatar-name">${esc(label)}</div>` : "");
+};
 const ago = (iso: string) => {
   const m = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
   return m < 1 ? "now" : m < 60 ? `${m} min` : `${Math.floor(m / 60)} h`;

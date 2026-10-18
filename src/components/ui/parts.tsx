@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { env } from "../../config/env";
 import { useI18n, type StringKey } from "../../i18n";
 import { IconAlert, IconBack, IconCheck, IconInfo, IconPlay } from "./Icons";
+import { avatarSvg, normalizeAvatar } from "../../lib/avatar";
 
 export function DemoBanner() {
   const { t } = useI18n();
@@ -94,8 +95,13 @@ const RING: Record<string, string> = {
   green: "var(--color-success)", blue: "#2F6FB3",
 };
 
-/** Placeholder avatar (initial on a coloured ring). The character editor replaces it in phase 5. */
+/** Resident character (layered SVG). Old configs without a character fall back to the initial on a coloured ring. */
 export function Avatar({ name, config, size = 48 }: { name: string; config?: Record<string, unknown>; size?: number }) {
+  const c = normalizeAvatar(config);
+  if (c) {
+    return <span className="avatar avatar-svg" aria-hidden="true" style={{ width: size, height: size }}
+      dangerouslySetInnerHTML={{ __html: avatarSvg(c, size - 6) }} />;
+  }
   const ring = RING[String(config?.ring ?? "orange")] ?? RING.orange;
   return (
     <span className="avatar" aria-hidden="true"

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../features/auth/AuthProvider";
 import { communityFeed, eventsList, newsletters, type EventRow, type Newsletter, type Post } from "../../features/info/api";
+import { myRewards, type Rewards } from "../../features/rewards/api";
 import { useI18n, type StringKey } from "../../i18n";
 import { useTitle } from "../../lib/useTitle";
 import { NotificationBell } from "../../components/issues";
@@ -10,7 +11,7 @@ import HappeningNow from "../../components/HappeningNow";
 import { PostCard } from "./community/Community";
 import { EventCard } from "./events/Events";
 import {
-  IconAlert, IconBell, IconCalendar, IconChat, IconClipboard, IconHelp, IconMail, IconMegaphone, IconQR, IconReceipt, IconSOS, IconWrench,
+  IconAlert, IconBell, IconCalendar, IconChat, IconClipboard, IconHelp, IconMail, IconMegaphone, IconQR, IconReceipt, IconSOS, IconTrophy, IconWrench,
 } from "../../components/ui/Icons";
 
 const TILES: { key: StringKey; to: string; Icon: typeof IconBell; tint: string; ink: string; ownerOnly?: boolean }[] = [
@@ -33,11 +34,13 @@ export default function ResidenceTab() {
   const [nl, setNl] = useState<Newsletter | null | undefined>(undefined);
   const [posts, setPosts] = useState<Post[] | null>(null);
   const [events, setEvents] = useState<EventRow[] | null>(null);
+  const [rw, setRw] = useState<Rewards | null>(null);
 
   useEffect(() => {
     newsletters().then((l) => setNl(l[0] ?? null)).catch(() => setNl(null));
     communityFeed("all", 3).then(setPosts).catch(() => setPosts([]));
     eventsList("upcoming").then((e) => setEvents(e.slice(0, 2))).catch(() => setEvents([]));
+    myRewards().then(setRw).catch(() => setRw(null));
   }, []);
 
   return (
@@ -74,10 +77,15 @@ export default function ResidenceTab() {
         </Link>
       )}
 
-      <Link to="/app/soon/quests" className="card row" style={{ textDecoration: "none", color: "inherit", marginTop: 16 }}>
-        <IconClipboard style={{ width: 28, height: 28, color: "var(--color-orange)" }} />
-        <span className="grow" style={{ fontWeight: 800 }}>{t("res.quests")}</span>
-        <span className="chip">{t("common.comingSoon")}</span>
+      <Link to="/app/rewards" className="card row" style={{ textDecoration: "none", color: "inherit", marginTop: 16 }}>
+        <IconClipboard style={{ width: 28, height: 28, color: "var(--color-orange)", flex: "none" }} />
+        <span className="grow">
+          <strong style={{ display: "block" }}>{t("res.quests")}</strong>
+          <span className="small muted">{rw
+            ? t("res.questsLine", { done: rw.quests.filter((q) => q.progress >= q.target).length, total: rw.quests.length, level: rw.level, xp: rw.xp })
+            : t("common.loading")}</span>
+        </span>
+        <IconTrophy style={{ width: 24, height: 24, color: "var(--color-amber)", flex: "none" }} />
       </Link>
 
       <div className="row section-head">
@@ -95,6 +103,22 @@ export default function ResidenceTab() {
       {!events ? <div className="card muted">{t("common.loading")}</div> : events.length === 0 ? (
         <div className="card muted">{t("event.empty.upcoming")}</div>
       ) : events.map((e) => <EventCard key={e.id} e={e} />)}
+
+      <section className="support-card" aria-labelledby="support-h">
+        <h2 id="support-h">{t("support.title")}</h2>
+        <div className="support-grid">
+          <div>
+            <span className="support-label">{t("support.tollFree")}</span>
+            <a className="support-number" href="tel:+1800881118">1-800-88-1118</a>
+            <span className="small">{t("support.hours")}</span>
+          </div>
+          <div>
+            <span className="support-label">{t("support.outside")}</span>
+            <a className="support-number" href="tel:+60378495000">+603-7849 5000</a>
+          </div>
+        </div>
+        <p className="small" style={{ margin: "10px 0 0", opacity: 0.9 }}>{t("support.note")}</p>
+      </section>
 
       <Link to="/app/report" className="fab">+ {t("issues.report")}</Link>
     </main>
