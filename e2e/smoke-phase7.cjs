@@ -72,7 +72,13 @@ function qrVideo(text, file) {
     await A.getByRole('button', { name: 'Turn on camera' }).click();
     await A.locator('.banner').first().waitFor({ timeout: 15000 });
     out('event scan', (await A.locator('.banner').allInnerTexts()).join(' | '));
-    out('camera stopped on leave', await A.evaluate(async () => { history.back(); await new Promise((r) => setTimeout(r, 800)); return document.querySelectorAll('video').length; }));
+    await A.getByRole('button', { name: 'Scan another' }).click();
+    await A.getByRole('button', { name: 'Turn on camera' }).click().catch(() => {});
+    await A.waitForFunction(() => document.querySelector('video')?.srcObject, null, { timeout: 10000 });
+    await A.evaluate(() => { window.__cam = document.querySelector('video').srcObject; });
+    out('camera live while scanning', await A.evaluate(() => window.__cam.getTracks().map((t) => t.readyState).join(',')));
+    await A.locator('main a[href="/app/services/visitors"]').click(); await A.waitForTimeout(1200); // in-app navigation away
+    out('camera after leaving page', await A.evaluate(() => window.__cam.getTracks().map((t) => t.readyState).join(',')));
     await cam.close();
   });
 
