@@ -69,7 +69,7 @@ export default function BillingAdmin() {
     } catch (e) { fail(e); }
   }
   async function viewInvoice(b: AdminBill) {
-    const w = window.open("", "_blank", "noopener");
+    const w = window.open("", "_blank"); if (w) w.opener = null;
     try { const url = await invoiceLink(b.id); if (w) w.location.href = url; } catch (e) { w?.close(); fail(e); }
   }
   async function saveDays() {

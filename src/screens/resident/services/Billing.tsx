@@ -35,7 +35,7 @@ export default function Billing() {
   }
   async function openInvoice(b: MyBill) {
     setMsg(null);
-    const w = window.open("", "_blank", "noopener");
+    const w = window.open("", "_blank"); if (w) w.opener = null;
     try { const url = await invoiceLink(b.id); if (w) w.location.href = url; else window.location.href = url; }
     catch (e) { w?.close(); setMsg({ kind: "error", text: t(errorKey(e)) }); }
   }
