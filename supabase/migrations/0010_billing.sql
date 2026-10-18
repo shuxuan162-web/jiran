@@ -330,28 +330,28 @@ begin
     i := i + 1; v_errs := '{}'; v_unit := null; v_label := null; v_amount := null; v_due := null;
     select u.id, u.label into v_unit, v_label from public.units u
      where u.township_id = public.my_township() and lower(u.label) = lower(trim(coalesce(r->>'unit', '')));
-    if v_unit is null then v_errs := v_errs || 'unit_unknown'; end if;
+    if v_unit is null then v_errs := array_append(v_errs, 'unit_unknown'); end if;
     v_kind := private.bill_kind(r->>'type');
-    if v_kind is null then v_errs := v_errs || 'type_unknown'; end if;
-    if char_length(trim(coalesce(r->>'period', ''))) not between 1 and 60 then v_errs := v_errs || 'period_missing'; end if;
+    if v_kind is null then v_errs := array_append(v_errs, 'type_unknown'); end if;
+    if char_length(trim(coalesce(r->>'period', ''))) not between 1 and 60 then v_errs := array_append(v_errs, 'period_missing'); end if;
     begin
       v_amount := replace(replace(trim(coalesce(r->>'amount', '')), ',', ''), 'RM', '')::numeric;
-      if v_amount < 0 or round(v_amount, 2) <> v_amount then v_errs := v_errs || 'amount_bad'; end if;
-    exception when others then v_errs := v_errs || 'amount_bad';
+      if v_amount < 0 or round(v_amount, 2) <> v_amount then v_errs := array_append(v_errs, 'amount_bad'); end if;
+    exception when others then v_errs := array_append(v_errs, 'amount_bad');
     end;
     begin
       if coalesce(r->>'due_date', '') !~ '^\d{4}-\d{2}-\d{2}$' then raise exception 'x'; end if;
       v_due := (r->>'due_date')::date;
-    exception when others then v_errs := v_errs || 'due_bad'; v_due := null;
+    exception when others then v_errs := array_append(v_errs, 'due_bad'); v_due := null;
     end;
-    if char_length(coalesce(r->>'reference', '')) > 60 then v_errs := v_errs || 'reference_long'; end if;
+    if char_length(coalesce(r->>'reference', '')) > 60 then v_errs := array_append(v_errs, 'reference_long'); end if;
     if v_unit is not null and v_kind is not null and v_due is not null then
       v_key := v_unit::text || v_kind || lower(trim(r->>'period')) || v_due::text;
-      if v_key = any(v_seen) then v_errs := v_errs || 'duplicate_in_file'; end if;
+      if v_key = any(v_seen) then v_errs := array_append(v_errs, 'duplicate_in_file'); end if;
       v_seen := v_seen || v_key;
       if exists (select 1 from public.billing_reminders b where b.unit_id = v_unit and b.kind = v_kind and b.status = 'open'
                   and lower(b.period) = lower(trim(r->>'period')) and b.due_date = v_due) then
-        v_errs := v_errs || 'already_exists';
+        v_errs := array_append(v_errs, 'already_exists');
       end if;
     end if;
     if cardinality(v_errs) > 0 then v_bad := v_bad + 1; end if;
