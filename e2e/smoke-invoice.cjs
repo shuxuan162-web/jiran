@@ -21,11 +21,11 @@ const pdf = Buffer.from('%PDF-1.1\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj 2 
   await a.getByLabel('Period').fill('Invoice link test (smoke test)'); await a.getByLabel('Amount (RM)').fill('1.00');
   await a.getByLabel('Due date').fill(new Date(Date.now() + 8 * 3600000 + 20 * 86400000).toISOString().slice(0, 10));
   await a.getByRole('button', { name: 'Save' }).first().click(); await a.waitForTimeout(3000);
-  const row = a.locator('tr', { hasText: 'Invoice link test' });
+  const row = a.locator('tr', { hasText: 'Invoice link test' }).first();
   const [ch] = await Promise.all([a.waitForEvent('filechooser'), row.getByRole('button', { name: 'Attach invoice' }).click()]);
   await ch.setFiles({ name: 'inv.pdf', mimeType: 'application/pdf', buffer: pdf }); await a.waitForTimeout(3000);
   await o.goto(base + '/app/billing'); await o.waitForTimeout(3000);
-  const [pop] = await Promise.all([o.waitForEvent('popup'), o.locator('.bill', { hasText: 'Invoice link test' }).getByRole('button', { name: 'View invoice' }).click()]);
+  const [pop] = await Promise.all([o.waitForEvent('popup'), o.locator('.bill', { hasText: 'Invoice link test' }).first().getByRole('button', { name: 'View invoice' }).click()]);
   await pop.waitForURL(/object\/sign\/invoices\//, { timeout: 15000 }).catch(() => {});
   const u = pop.url();
   const r = u.includes('/object/sign/invoices/') ? await o.request.get(u) : null;
@@ -43,7 +43,9 @@ const pdf = Buffer.from('%PDF-1.1\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj 2 
     return `${res.status} ${(await res.text()).slice(0, 80)}`;
   }, { supa, path });
   console.log('other owner asks for the same file:', other);
-  await row.getByRole('button', { name: 'Void' }).click(); await a.waitForTimeout(2500);
+  while (await a.locator('tr', { hasText: 'Invoice link test' }).count()) {
+    await a.locator('tr', { hasText: 'Invoice link test' }).first().getByRole('button', { name: 'Void' }).click(); await a.waitForTimeout(2500);
+  }
   console.log('cleanup:', (await a.locator('.banner').allInnerTexts()).join(' | '));
   await b.close();
 })();
