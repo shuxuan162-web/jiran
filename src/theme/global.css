@@ -522,7 +522,7 @@ button.list-row { width: 100%; border: 0; background: var(--color-white); font: 
 @media (max-width: 380px) { .item-grid { grid-template-columns: repeat(3, 1fr); } .badge-grid { grid-template-columns: repeat(2, 1fr); } }
 
 /* Support numbers at the very end of the Residence tab */
-.support-card { margin: var(--space-xl) calc(-1 * var(--space-lg)) 0; padding: var(--space-xl) var(--space-lg) calc(var(--space-xl) + 72px);
+.support-card { margin: var(--space-xl) calc(-1 * var(--space-lg)) calc(-1 * (96px + env(safe-area-inset-bottom))); padding: var(--space-xl) var(--space-lg) calc(var(--space-xl) + 96px + env(safe-area-inset-bottom));
   background: linear-gradient(135deg, var(--color-red) 0%, var(--color-orange) 100%); color: var(--color-white); }
 .support-card h2 { color: var(--color-white); font-size: 1.125rem; margin-bottom: var(--space-md); }
 .support-grid { display: grid; gap: var(--space-lg); }
