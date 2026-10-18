@@ -1,5 +1,10 @@
 -- Phase 9 database behaviour test (billing, service requests, surveys). Run with: bash e2e/db/run.sh e2e/db/phase9_test.sql
 begin;
+-- In this harness the seed runs after the migrations, so add the starting categories the migration adds on the real project.
+insert into public.service_categories (township_id, name, proposed, sort_order)
+select t.id, x.name, true, x.ord from public.townships t
+ cross join (values ('General enquiry', 1), ('Maintenance request', 2), ('Facilities', 3), ('Other', 4)) x(name, ord)
+on conflict do nothing;
 create temp table t_res(n serial, k text, v text); grant insert, select on t_res to authenticated; grant usage on sequence t_res_n_seq to authenticated;
 set local role authenticated;
 -- management adds a bill due in 2 days for LakeWalker's unit
