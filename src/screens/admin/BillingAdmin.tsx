@@ -69,7 +69,7 @@ export default function BillingAdmin() {
     } catch (e) { fail(e); }
   }
   async function viewInvoice(b: AdminBill) {
-    const w = window.open("", "_blank"); if (w) w.opener = null;
+    const w = window.open("", "_blank"); // our own storage link, so keeping the opener is fine; it lets us set the address after signing
     try { const url = await invoiceLink(b.id); if (w) w.location.href = url; } catch (e) { w?.close(); fail(e); }
   }
   async function saveDays() {
