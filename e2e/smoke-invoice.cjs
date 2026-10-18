@@ -25,11 +25,14 @@ const pdf = Buffer.from('%PDF-1.1\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj 2 
   const [ch] = await Promise.all([a.waitForEvent('filechooser'), row.getByRole('button', { name: 'Attach invoice' }).click()]);
   await ch.setFiles({ name: 'inv.pdf', mimeType: 'application/pdf', buffer: pdf }); await a.waitForTimeout(3000);
   await o.goto(base + '/app/billing'); await o.waitForTimeout(3000);
+  // Headless Chrome has no PDF viewer, so the signed link arrives as a download; a phone or desktop browser shows the PDF.
+  let signed = '';
+  o.context().on('request', (q) => { if (q.url().includes('/object/sign/invoices/') && q.url().includes('token=')) signed = q.url(); });
   const [pop] = await Promise.all([o.waitForEvent('popup'), o.locator('.bill', { hasText: 'Invoice link test' }).first().getByRole('button', { name: 'View invoice' }).click()]);
-  await pop.waitForURL(/object\/sign\/invoices\//, { timeout: 15000 }).catch(() => {});
-  const u = pop.url();
-  const r = u.includes('/object/sign/invoices/') ? await o.request.get(u) : null;
-  console.log('owner opens invoice:', r ? `HTTP ${r.status()} ${r.headers()['content-type']} starts ${(await r.body()).slice(0, 5).toString()}` : u.slice(0, 100));
+  const dl = await pop.waitForEvent('download', { timeout: 15000 }).catch(() => null);
+  const r = signed ? await o.request.get(signed) : null;
+  console.log('owner opens invoice:', r ? `signed link, HTTP ${r.status()} ${r.headers()['content-type']} starts ${(await r.body()).slice(0, 5).toString()}${dl ? `, delivered ${dl.suggestedFilename()}` : ''}` : 'no signed link');
+  const u = signed;
   // Another owner asks storage directly for a signed link to the same file: refused by the storage rules
   const path = decodeURIComponent((u.split('/object/sign/invoices/')[1] ?? '').split('?')[0]);
   const supa = u.split('/storage/v1/')[0];
