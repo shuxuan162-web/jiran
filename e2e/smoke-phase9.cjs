@@ -71,7 +71,7 @@ const dayPlus = (n) => new Date(Date.now() + 8 * 3600000 + n * 86400000).toISOSt
     const card = owner.locator('.bill', { hasText: 'smoke test' });
     out('owner bill card', await card.innerText());
     const [popup] = await Promise.all([owner.waitForEvent('popup', { timeout: 10000 }).catch(() => null), card.getByRole('button', { name: 'View invoice' }).click()]);
-    if (popup) { await popup.waitForLoadState().catch(() => {}); out('invoice opens', popup.url().includes('/storage/v1/object/sign/invoices/') ? 'signed URL ok' : popup.url().slice(0, 80)); }
+    if (popup) { await popup.waitForURL(/storage\/v1\/object\/sign\/invoices\//, { timeout: 10000 }).catch(() => {}); const r = popup.url().includes('/object/sign/invoices/') ? await owner.request.get(popup.url()) : null; out('invoice opens', r ? `signed URL, HTTP ${r.status()}, ${r.headers()['content-type']}` : popup.url().slice(0, 80)); }
     await owner.goto(base + '/app/notifications'); await owner.waitForTimeout(2500);
     out('owner bell', (await owner.locator('.notice-row').allInnerTexts()).slice(0, 3).join(' | '));
   });

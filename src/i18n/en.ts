@@ -197,7 +197,7 @@ export const en = {
   "admin.nav.verifications": "Verifications",
   "admin.nav.services": "Service requests",
   "admin.nav.billing": "Billing reminders",
-  "admin.nav.surveys": "Resident feedback",
+  "admin.nav.surveys": "Surveys and FAQ",
   "admin.nav.content": "Property enquiries",
   "admin.nav.health": "Health",
   "admin.signOut": "Sign out",
