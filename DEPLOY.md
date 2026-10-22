@@ -2,7 +2,7 @@
 
 Jiran is a static React app on Vercel plus a Supabase project (database, auth, storage, realtime, two edge functions). There is no server of our own to keep running.
 
-Current live deployment (phases 1 to 3; phase 4 needs migration 0005):
+Current live deployment (all phases, migrations 0001 to 0012):
 
 | Piece | Where |
 | --- | --- |
