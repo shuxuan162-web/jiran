@@ -13,7 +13,7 @@
 | Source | https://github.com/shuxuan162-web/jiran |
 | Setup and deployment | [DEPLOY.md](DEPLOY.md) |
 
-**Team Sims City:** Haley (team leader), Benedic, Marcus, Kylie, Shu Xuan.
+**Team Sims City:** Haley (team leader),Shu Xuan, Benedic, Marcus, Kylie.
 
 ---
 
